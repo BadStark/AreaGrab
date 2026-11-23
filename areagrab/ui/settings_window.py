@@ -320,9 +320,9 @@ class SettingsWindow:
         if not self._loading:
             self._update_apply()
 
-    def _save(self) -> None:
+    def _save(self) -> bool:
         if self._recording:
-            return
+            return False
         s = self.app.settings
         s.advanced.autostart = bool(self.var_autostart.get())
         s.clipboard.copy_image = bool(self.var_copy.get())
@@ -332,8 +332,6 @@ class SettingsWindow:
         s.save.format = "png" if self.var_format.get().startswith("PNG") else "jpg"
         s.save.jpeg_quality = int(self.var_quality.get())
         s.save.filename_template = self.var_template.get().strip() or "AreaGrab_{date}_{time}"
-        s.capture.delay_seconds = int(self.var_delay.get())
-        s.capture.dim = float(self.var_dim.get())
         s.notifications.toast = bool(self.var_toast.get())
         s.notifications.duration_ms = int(self.var_duration.get())
         s.notifications.thumbnail = bool(self.var_thumbnail.get())
@@ -346,13 +344,15 @@ class SettingsWindow:
                     "Не удалось распознать сочетание. Примеры: print_screen, ctrl+shift+4.",
                     parent=self.top,
                 )
-                self.var_hotkey.set(s.hotkeys.capture)
-                return
+                return False
             s.hotkeys.capture = hotkey
 
         s.validate()
         self.app.settings_changed()
-        self._baseline = self._snapshot()\n        self._update_apply()\n        self._flash_saved()\n        return True
+        self._baseline = self._snapshot()
+        self._update_apply()
+        self._flash_saved()
+        return True
 
     def _flash_saved(self) -> None:
         self.saved_label.config(text="Сохранено")
@@ -365,7 +365,7 @@ class SettingsWindow:
         )
         if selected:
             self.var_folder.set(selected)
-            self._save()
+            self._mark_dirty()
 
     def _record_hotkey(self) -> None:
         if self._recording:
@@ -387,9 +387,7 @@ class SettingsWindow:
         self.app.resume_hotkeys()
         if key and key.lower() != "esc":
             self.var_hotkey.set(key.lower())
-            self._save()
-        else:
-            self._flash_saved()
+            self._mark_dirty()
 
     def _fix_snipping(self) -> None:
         if not is_snipping_tool_prtscr_enabled():
@@ -441,7 +439,6 @@ class SettingsWindow:
             return
         self.app.reset_settings()
         self._load_values()
-        self._refresh_snipping_status()
 
     def close(self) -> None:
         if self._recording:
@@ -454,7 +451,7 @@ class SettingsWindow:
         if hasattr(self, "_baseline") and self._snapshot() != self._baseline:
             choice = messagebox.askyesnocancel(
                 "Несохранённые изменения",
-                "Сохранить изменения настроек перед закрытием?\\n\\n"
+                "Сохранить изменения настроек перед закрытием?\n\n"
                 "Да — сохранить; Нет — закрыть без сохранения; Отмена — вернуться.",
                 parent=self.top,
             )
