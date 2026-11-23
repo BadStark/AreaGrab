@@ -337,7 +337,7 @@ class SettingsWindow:
         )
         ttk.Label(
             tab,
-            text="AreaGrab 1.1 — бесплатная версия. Pro с историей, OCR и pin появится позже.",
+            text="AreaGrab — быстрый захват экрана для Windows. Снимки можно сохранять в JPG/PNG, копировать в буфер и просматривать в истории. PrtScr — новая область; Ctrl+PrtScr — повтор последней области. История в памяти очищается при завершении приложения.",
             foreground="#64748b",
             wraplength=560,
         ).pack(anchor="w", pady=(14, 0))
