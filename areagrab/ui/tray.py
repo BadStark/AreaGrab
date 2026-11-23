@@ -83,7 +83,7 @@ class TrayIcon:
                 default=True,
             ),
             pystray.MenuItem(
-                "Повторить последнюю область",
+                "Повторить последнюю область (Ctrl+PrtScr)",
                 lambda _icon, _item: self.app.post("repeat"),
                 enabled=self.app.last_rect is not None,
             ),
@@ -110,11 +110,6 @@ class TrayIcon:
         if not recent_items:
             recent_items.append(pystray.MenuItem("Пока пусто", None, enabled=False))
         items.append(pystray.MenuItem("Последние снимки", pystray.Menu(*recent_items)))
-        items.append(pystray.MenuItem(
-            "Создать инструкцию из последних снимков…",
-            lambda _icon, _item: self.app.post("compose_guide"),
-            enabled=bool(history),
-        ))
         items.extend(
             [
                 pystray.MenuItem(
