@@ -4,7 +4,8 @@ import json
 import logging
 import os
 import tempfile
-from dataclasses import asdict, dataclass, field, replace
+from copy import deepcopy
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -236,4 +237,4 @@ class Settings:
             raise
 
     def copy(self) -> "Settings":
-        return replace(self, **{})
+        return deepcopy(self)
