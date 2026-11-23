@@ -62,6 +62,47 @@ Filename: "{app}\AreaGrab.exe"; Description: "{cm:LaunchProgram,AreaGrab}"; Flag
 
 
 [Code]
+const
+  AreaGrabUninstallKey = 'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{A7D4C2E1-5B3F-4E8A-9C21-6F0D8B7A1E42}_is1';
+
+function InitializeSetup(): Boolean;
+var
+  ExistingVersion: String;
+  ExistingName: String;
+  Running: Boolean;
+  Prompt: String;
+begin
+  Result := True;
+  ExistingVersion := '';
+  ExistingName := '';
+  { Inno Setup uses the stable AppId to register installed versions. }
+  if not RegQueryStringValue(HKCU, AreaGrabUninstallKey, 'DisplayVersion', ExistingVersion) then
+    RegQueryStringValue(HKCU, AreaGrabUninstallKey, 'DisplayName', ExistingName);
+  Running := CheckForMutexes('AreaGrab_SingleInstance_v1');
+  if (ExistingVersion = '') and (ExistingName = '') and not Running then
+    Exit;
+
+  Prompt := 'На компьютере обнаружена предыдущая установка или запущенный AreaGrab.' +
+    #13#10 + #13#10;
+  if ExistingVersion <> '' then
+    Prompt := Prompt + 'Установленная версия: ' + ExistingVersion + #13#10;
+  Prompt := Prompt + 'Версия устанавливаемой сборки: 1.1.0' +
+    #13#10 + #13#10 +
+    'Установить выбранную сборку поверх существующей?' + #13#10 +
+    'Настройки и сохранённые снимки останутся на месте.';
+  if Running then
+    Prompt := Prompt + #13#10 + #13#10 +
+      'AreaGrab сейчас запущен. Перед обновлением его нужно закрыть через меню в трее.';
+
+  { Silent installs must opt in to replacing an existing installation. }
+  if WizardSilent then
+  begin
+    Result := False;
+    Exit;
+  end;
+  Result := MsgBox(Prompt, mbConfirmation, MB_YESNO) = IDYES;
+end;
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   Result := '';
