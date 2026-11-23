@@ -18,7 +18,6 @@ from . import storage
 from .config import Settings
 from .constants import APP_NAME, LOG_DIR, SETTINGS_PATH, WEBSITE_URL
 from .history import History
-from .workflows import MAX_STEPS, compose_steps
 from .hotkeys import HotkeyError, HotkeyManager
 from .logging_setup import setup_logging
 from .ui.first_run import FirstRunWindow
@@ -86,7 +85,10 @@ class AreaGrabApp:
             duration_ms=self.settings.notifications.duration_ms,
         )
         self.tray = TrayIcon(self)
-        self.hotkeys = HotkeyManager(lambda: self.post("capture"))
+        self.hotkeys = HotkeyManager(
+            lambda: self.post("capture"),
+            lambda: self.post("repeat"),
+        )
 
         self.root.report_callback_exception = self._tk_exception
 
@@ -153,10 +155,6 @@ class AreaGrabApp:
             self.recopy(int(payload))  # type: ignore[arg-type]
         elif kind == "delivered":
             self._on_delivered(payload)  # type: ignore[arg-type]
-        elif kind == "compose_guide":
-            self.compose_guide()
-        elif kind == "guide_error":
-            self.toast("Не удалось собрать инструкцию", str(payload))
         elif kind == "show_preview":
             self._show_preview_payload(payload)
         else:
@@ -520,34 +518,6 @@ class AreaGrabApp:
     def clear_history(self) -> None:
         self.history.clear()
         self.tray.refresh()
-
-    def compose_guide(self) -> None:
-        """Make a numbered guide from recent screenshots, oldest first.
-
-        Encoding and layout run off the Tk thread; the preview opens on Tk.
-        Nothing is uploaded or written until the user chooses Save As.
-        """
-        recent = self.history.items()[:MAX_STEPS]
-        if not recent:
-            self.toast("Нет снимков", "Сделайте несколько снимков перед созданием инструкции.")
-            return
-        snapshots = [item.png for item in reversed(recent)]
-
-        def worker() -> None:
-            import io
-
-            try:
-                frames: list[Image.Image] = []
-                for data in snapshots:
-                    with Image.open(io.BytesIO(data)) as source:
-                        frames.append(source.convert("RGB"))
-                guide = compose_steps(frames)
-                self.post("show_preview", guide)
-            except Exception as exc:
-                log.exception("Guide composition failed")
-                self.post("guide_error", str(exc))
-
-        threading.Thread(target=worker, name="compose-guide", daemon=True).start()
 
     def recopy(self, index: int) -> None:
         item = self.history.get(index)
