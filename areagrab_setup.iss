@@ -71,18 +71,18 @@ begin
   begin
     if WizardSilent then
     begin
-      Result := 'AreaGrab is running. Exit AreaGrab from the tray before updating.';
+      Result := 'AreaGrab запущен. Закройте приложение через меню в трее перед обновлением.';
       Exit;
     end;
     if MsgBox(
-      'AreaGrab is still running.' + #13#10 + #13#10 +
-      'Right-click the AreaGrab icon in the Windows notification area and choose Exit.' +
-      #13#10 + 'Then click Retry to continue updating.' + #13#10 + #13#10 +
-      'Your saved screenshots and settings will not be deleted.',
+      'AreaGrab сейчас запущен.' + #13#10 + #13#10 +
+      'Нажмите правой кнопкой мыши на значок AreaGrab возле часов и выберите «Выход».' +
+      #13#10 + 'Затем нажмите «Повторить», чтобы продолжить обновление.' + #13#10 + #13#10 +
+      'Настройки и сохранённые скриншоты останутся на месте.',
       mbConfirmation, MB_RETRYCANCEL
     ) <> IDRETRY then
     begin
-      Result := 'Installation cancelled: AreaGrab must be closed first.';
+      Result := 'Установка отменена: сначала необходимо закрыть AreaGrab.';
       Exit;
     end;
   end;
