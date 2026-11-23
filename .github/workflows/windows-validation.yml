@@ -1,0 +1,60 @@
+name: Windows validation
+
+on:
+  push:
+    branches: [main, fix/pro-stabilization]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pyinstaller
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Build portable application
+        run: python -m PyInstaller --noconfirm --clean --workpath build_v11 --distpath dist_final AreaGrab.spec
+      - name: Verify executable exists
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "dist_final/AreaGrab/AreaGrab.exe")) { throw "Missing AreaGrab.exe" }
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\\Inno Setup 6\\ISCC.exe"
+          if (-not (Test-Path $iscc)) { throw "Inno Setup compiler not found" }
+          & $iscc areagrab_setup.iss
+          if ($LASTEXITCODE -ne 0) { throw "Installer compilation failed" }
+          if (-not (Test-Path "Output_v11/AreaGrab_Setup_1.1.0.exe")) { throw "Installer output missing" }
+      - name: Silent install smoke test
+        shell: pwsh
+        run: |
+          $setup = (Resolve-Path "Output_v11/AreaGrab_Setup_1.1.0.exe").Path
+          $log = Join-Path $env:RUNNER_TEMP "areagrab-install.log"
+          $proc = Start-Process -FilePath $setup -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=$log") -Wait -PassThru
+          if ($proc.ExitCode -ne 0) {
+            if (Test-Path $log) { Get-Content $log -Tail 100 }
+            throw "Installer failed with exit code $($proc.ExitCode)"
+          }
+          if (-not (Test-Path "$env:LOCALAPPDATA/Programs/AreaGrab/AreaGrab.exe")) { throw "Installed executable missing" }
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: AreaGrab-installer
+          path: Output_v11/AreaGrab_Setup_1.1.0.exe
+      - name: Upload Windows application
+        uses: actions/upload-artifact@v4
+        with:
+          name: AreaGrab-windows-onedir
+          path: dist_final/AreaGrab/

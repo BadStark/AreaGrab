@@ -10,7 +10,7 @@ python -m unittest discover -s tests -v
 if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
 
 Write-Host "== PyInstaller (onedir) ==" -ForegroundColor Cyan
-python -m PyInstaller --noconfirm --workpath build_v11 --distpath dist_final AreaGrab.spec
+python -m PyInstaller --noconfirm --clean --workpath build_v11 --distpath dist_final AreaGrab.spec
 if ($LASTEXITCODE -ne 0) { throw "PyInstaller failed" }
 
 $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
@@ -19,7 +19,7 @@ if (Test-Path $iscc) {
     & $iscc "$root\areagrab_setup.iss"
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
 } else {
-    Write-Warning "ISCC.exe not found; installer was not built."
+    throw "ISCC.exe not found; installer was not built. Install Inno Setup 6 or use the portable build separately."
 }
 
 Write-Host "== Portable ZIP ==" -ForegroundColor Cyan

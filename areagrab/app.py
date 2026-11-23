@@ -212,17 +212,19 @@ class AreaGrabApp:
             self.toast("Слишком маленькая область", "Выделите область побольше и попробуйте снова.")
 
     def _deliver(self, image: Image.Image, point: tuple[int, int]) -> None:
+        # Freeze options at capture time; settings can change while the worker runs.
+        settings = self.settings.copy()
         thread = threading.Thread(
             target=self._deliver_worker,
-            args=(image, point),
+            args=(image, point, settings),
             name="deliver",
             daemon=True,
         )
         thread.start()
 
-    def _deliver_worker(self, image: Image.Image, point: tuple[int, int]) -> None:
+    def _deliver_worker(self, image: Image.Image, point: tuple[int, int], settings: Settings) -> None:
         png = b""
-        clipboard_enabled = bool(self.settings.clipboard.copy_image)
+        clipboard_enabled = bool(settings.clipboard.copy_image)
         clipboard_ok = not clipboard_enabled
         clipboard_error: str | None = None
         save_error: str | None = None
@@ -243,7 +245,7 @@ class AreaGrabApp:
                 log.exception("Clipboard copy failed")
 
         try:
-            path = storage.save_image(image, self.settings)
+            path = storage.save_image(image, settings)
         except Exception as exc:
             save_error = str(exc)
             log.exception("Saving image failed")

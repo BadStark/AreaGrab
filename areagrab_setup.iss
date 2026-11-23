@@ -28,6 +28,7 @@ MinVersion=10.0
 CloseApplications=yes
 RestartApplications=no
 AppMutex=AreaGrab_SingleInstance_v1
+SetupLogging=yes
 ; --- Legal documents ---
 LicenseFile=LicenseAgreement.rtf
 InfoBeforeFile=PrivacyPolicy.rtf
@@ -57,5 +58,3 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 [Run]
 Filename: "{app}\AreaGrab.exe"; Description: "{cm:LaunchProgram,AreaGrab}"; Flags: nowait postinstall skipifsilent
 
-[UninstallRun]
-Filename: "{cmd}"; Parameters: "/C taskkill /IM AreaGrab.exe /F >nul 2>&1"; Flags: runhidden; RunOnceId: "KillAreaGrab"
