@@ -26,6 +26,17 @@ jobs:
         shell: pwsh
         run: |
           if (-not (Test-Path "dist_final/AreaGrab/AreaGrab.exe")) { throw "Missing AreaGrab.exe" }
+      - name: Runtime smoke test (imports and boot)
+        shell: pwsh
+        run: |
+          $exe = (Resolve-Path "dist_final/AreaGrab/AreaGrab.exe").Path
+          $proc = Start-Process -FilePath $exe -ArgumentList "--version" -PassThru -Wait
+          if ($proc.ExitCode -ne 0) { throw "Packaged AreaGrab failed at startup (exit code $($proc.ExitCode))" }
+          $toc = Get-ChildItem -Path "build_v11" -Recurse -Filter "Analysis-00.toc" | Select-Object -First 1
+          if (-not $toc) { throw "PyInstaller analysis missing" }
+          if (-not (Select-String -Path $toc.FullName -Pattern "areagrab.ui.settings_window" -Quiet)) {
+            throw "settings_window was not bundled by PyInstaller"
+          }
       - name: Install Inno Setup
         shell: pwsh
         run: choco install innosetup --yes --no-progress
