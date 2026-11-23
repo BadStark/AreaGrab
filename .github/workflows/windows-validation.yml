@@ -2,9 +2,9 @@ name: Windows validation
 
 on:
   push:
-    branches: [main, fix/pro-stabilization]
+    branches: [main, fix/pro-stabilization, feature/workflow-instructions]
   pull_request:
-    branches: [main]
+    branches: [main, fix/pro-stabilization]
 
 jobs:
   test-and-package:
