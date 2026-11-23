@@ -110,6 +110,11 @@ class TrayIcon:
         if not recent_items:
             recent_items.append(pystray.MenuItem("Пока пусто", None, enabled=False))
         items.append(pystray.MenuItem("Последние снимки", pystray.Menu(*recent_items)))
+        items.append(pystray.MenuItem(
+            "Создать инструкцию из последних снимков…",
+            lambda _icon, _item: self.app.post("compose_guide"),
+            enabled=bool(history),
+        ))
         items.extend(
             [
                 pystray.MenuItem(
