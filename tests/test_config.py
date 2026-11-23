@@ -17,6 +17,14 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.hotkeys.capture, "print_screen")
         self.assertFalse(settings.advanced.first_run_done)
 
+    def test_copy_is_independent(self) -> None:
+        settings = Settings.default()
+        cloned = settings.copy()
+        cloned.save.folder = "other"
+        cloned.license["key"] = "test"
+        self.assertNotEqual(settings.save.folder, cloned.save.folder)
+        self.assertNotIn("key", settings.license)
+
     def test_roundtrip(self) -> None:
         with temp_dir() as tmp:
             path = Path(tmp) / "settings.json"
