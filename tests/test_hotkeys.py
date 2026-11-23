@@ -19,6 +19,13 @@ class HotkeyTests(unittest.TestCase):
         self.assertTrue(binding.shift)
         self.assertEqual(binding.key_vk, 0x34)
 
+    def test_repeat_shortcut(self) -> None:
+        binding = parse_hotkey("ctrl+print_screen")
+        self.assertEqual(binding.key_vk, 0x2C)
+        self.assertTrue(binding.ctrl)
+        self.assertFalse(binding.alt)
+        self.assertFalse(binding.shift)
+
     def test_function_key(self) -> None:
         self.assertEqual(parse_hotkey("f12").key_vk, 0x7B)
 
