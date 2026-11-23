@@ -249,8 +249,10 @@ class HotkeyManager:
     lets us suppress PrtScr reliably and record hotkeys without extra deps.
     """
 
-    def __init__(self, callback: Callable[[], None]) -> None:
+    def __init__(self, callback: Callable[[], None], repeat_callback: Callable[[], None] | None = None) -> None:
         self._callback = callback
+        self._repeat_callback = repeat_callback
+        self._repeat_binding = parse_hotkey("ctrl+print_screen") if repeat_callback else None
         self._binding: Binding | None = None
         self._last_binding: Binding | None = None
         self._hook = None
@@ -404,26 +406,34 @@ class HotkeyManager:
                     if self._recording_cb is not None:
                         return self._handle_recording(vk)
 
-                    binding = self._binding
-                    if binding is not None and vk == binding.key_vk:
-                        ctrl = "ctrl" in self._mods
-                        alt = "alt" in self._mods
-                        shift = "shift" in self._mods
-                        win = "win" in self._mods
-                        if (
-                            ctrl == binding.ctrl
-                            and alt == binding.alt
-                            and shift == binding.shift
-                            and win == binding.win
-                        ):
-                            now = time.monotonic()
-                            if now - self._last_trigger >= 0.25:
-                                self._last_trigger = now
-                                try:
-                                    self._callback()
-                                except Exception:
-                                    log.exception("Hotkey callback failed")
-                            return 1
+                    ctrl = "ctrl" in self._mods
+                    alt = "alt" in self._mods
+                    shift = "shift" in self._mods
+                    win = "win" in self._mods
+                    # Repeat is a distinct shortcut and must win over PrtScr.
+                    # A paused hotkey manager disables both shortcuts.
+                    candidates = (
+                        (self._repeat_binding, self._repeat_callback),
+                        (self._binding, self._callback),
+                    )
+                    if not self._paused:
+                        for binding, callback in candidates:
+                            if binding is None or callback is None or vk != binding.key_vk:
+                                continue
+                            if (
+                                ctrl == binding.ctrl
+                                and alt == binding.alt
+                                and shift == binding.shift
+                                and win == binding.win
+                            ):
+                                now = time.monotonic()
+                                if now - self._last_trigger >= 0.25:
+                                    self._last_trigger = now
+                                    try:
+                                        callback()
+                                    except Exception:
+                                        log.exception("Hotkey callback failed")
+                                return 1
         except Exception:
             log.exception("Keyboard hook error")
         return user32.CallNextHookEx(None, n_code, w_param, l_param)
