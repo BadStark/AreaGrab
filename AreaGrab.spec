@@ -1,5 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from PyInstaller.utils.hooks import collect_submodules
+
 # AreaGrab 1.1 — onedir build for a fast start and fewer antivirus false positives.
 # The installer (Inno Setup) packages dist\AreaGrab\*.
 
@@ -8,7 +10,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[('areagrab_v2.png', '.')],
-    hiddenimports=['pystray._win32'],
+    hiddenimports=['pystray._win32'] + collect_submodules('areagrab'),
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
