@@ -22,7 +22,6 @@ from .installer_shutdown import listen_for_installer_shutdown
 from .hotkeys import HotkeyError, HotkeyManager
 from .logging_setup import setup_logging
 from .ui.first_run import FirstRunWindow
-from .ui.history_window import HistoryWindow
 from .ui.overlay import SelectionOverlay
 from .ui.preview import PreviewWindow
 from .ui.settings_window import SettingsWindow
@@ -74,7 +73,6 @@ class AreaGrabApp:
         self._applied_hotkey: str | None = None
         self._poll_after: str | None = None
         self.settings_window: SettingsWindow | None = None
-        self.history_window: HistoryWindow | None = None
         self.first_run_window: FirstRunWindow | None = None
 
         self.overlay = SelectionOverlay(
@@ -149,8 +147,8 @@ class AreaGrabApp:
             self.open_settings()
         elif kind == "folder":
             self.open_folder()
-        elif kind == "history":
-            self.open_history()
+        elif kind == "history_open":
+            self.open_history_item(int(payload))
         elif kind == "toggle_pause":
             self.toggle_pause()
         elif kind == "about":
@@ -402,16 +400,21 @@ class AreaGrabApp:
 
     # ------------------------------------------------------------- settings
 
-    def open_history(self) -> None:
-        if self.history_window is not None:
-            try:
-                self.history_window.render()
-                self.history_window.top.deiconify()
-                self.history_window.top.lift()
-                return
-            except tk.TclError:
-                self.history_window = None
-        self.history_window = HistoryWindow(self)
+    def open_history_item(self, index: int) -> None:
+        item = self.history.get(index)
+        if item is None:
+            self.toast("Снимок недоступен", "Он больше не находится в истории.")
+            return
+        try:
+            image = item.image()
+            self.copy_image_to_clipboard(image)
+            if item.path is not None and item.path.is_file():
+                self.open_path(item.path)
+            else:
+                self.show_preview(image, None)
+        except Exception as exc:
+            log.exception("Could not open screenshot from tray history")
+            self.toast("Не удалось открыть снимок", str(exc))
 
     def open_settings(self) -> None:
         if self.settings_window is not None:
