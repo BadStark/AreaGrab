@@ -96,7 +96,7 @@ class AdvancedSettings:
 
 @dataclass
 class Settings:
-    schema: int = 1
+    schema: int = 2
     save: SaveSettings = field(default_factory=SaveSettings)
     clipboard: ClipboardSettings = field(default_factory=ClipboardSettings)
     hotkeys: HotkeySettings = field(default_factory=HotkeySettings)
@@ -174,6 +174,10 @@ class Settings:
         notif = _dict(raw.get("notifications"))
         settings.notifications.toast = _bool(notif.get("toast"), True)
         settings.notifications.duration_ms = _int(notif.get("duration_ms"), 2200)
+        # Legacy default was 4000 ms. Upgrade it once; keep other custom values.
+        if settings.schema < 2 and settings.notifications.duration_ms == 4000:
+            settings.notifications.duration_ms = 2200
+        settings.schema = 2
         settings.notifications.thumbnail = _bool(notif.get("thumbnail"), True)
 
         adv = _dict(raw.get("advanced"))
