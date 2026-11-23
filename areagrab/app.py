@@ -21,6 +21,7 @@ from .history import History
 from .hotkeys import HotkeyError, HotkeyManager
 from .logging_setup import setup_logging
 from .ui.first_run import FirstRunWindow
+from .ui.history_window import HistoryWindow
 from .ui.overlay import SelectionOverlay
 from .ui.preview import PreviewWindow
 from .ui.settings_window import SettingsWindow
@@ -72,6 +73,7 @@ class AreaGrabApp:
         self._applied_hotkey: str | None = None
         self._poll_after: str | None = None
         self.settings_window: SettingsWindow | None = None
+        self.history_window: HistoryWindow | None = None
         self.first_run_window: FirstRunWindow | None = None
 
         self.overlay = SelectionOverlay(
@@ -145,6 +147,8 @@ class AreaGrabApp:
             self.open_settings()
         elif kind == "folder":
             self.open_folder()
+        elif kind == "history":
+            self.open_history()
         elif kind == "toggle_pause":
             self.toggle_pause()
         elif kind == "about":
@@ -396,6 +400,17 @@ class AreaGrabApp:
 
     # ------------------------------------------------------------- settings
 
+    def open_history(self) -> None:
+        if self.history_window is not None:
+            try:
+                self.history_window.render()
+                self.history_window.top.deiconify()
+                self.history_window.top.lift()
+                return
+            except tk.TclError:
+                self.history_window = None
+        self.history_window = HistoryWindow(self)
+
     def open_settings(self) -> None:
         if self.settings_window is not None:
             try:
@@ -472,10 +487,10 @@ class AreaGrabApp:
     def toggle_pause(self) -> None:
         if self.hotkeys.paused:
             self.resume_hotkeys()
-            self.toast("Горячая клавиша включена", self.settings.hotkeys.capture, duration_override=1800)
+            self.toast("AreaGrab снова работает", "Горячие клавиши включены.", duration_override=1800)
         else:
             self.pause_hotkeys()
-            self.toast("Горячая клавиша на паузе", "Включить можно из меню трея.", duration_override=1800)
+            self.toast("Работа AreaGrab приостановлена", "Горячие клавиши отключены. Возобновить можно через меню.", duration_override=1800)
 
     def save_settings(self) -> None:
         try:
