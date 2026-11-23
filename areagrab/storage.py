@@ -4,6 +4,7 @@ import logging
 import os
 import re
 import tempfile
+import threading
 from datetime import datetime
 from pathlib import Path
 
@@ -16,6 +17,7 @@ log = logging.getLogger(__name__)
 
 _INVALID_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
 _MAX_NAME = 120
+_SAVE_LOCK = threading.Lock()
 
 
 def sanitize_name(name: str) -> str:
@@ -87,8 +89,6 @@ def save_image(image: Image.Image, settings: Settings) -> Path | None:
     ensure_folder(folder)
     ext = extension_for(settings)
     base = render_filename(settings.save.filename_template)
-    path = unique_path(folder, base, ext)
-
     fd, tmp_name = tempfile.mkstemp(prefix=".areagrab-", suffix=ext, dir=str(folder))
     os.close(fd)
     tmp_path = Path(tmp_name)
@@ -99,7 +99,24 @@ def save_image(image: Image.Image, settings: Settings) -> Path | None:
             )
         else:
             image.save(tmp_path, "PNG", compress_level=6)
-        os.replace(tmp_path, path)
+        # Reserve the destination atomically: concurrent captures must not overwrite.
+        with _SAVE_LOCK:
+            for index in range(10000):
+                suffix = f"_{index}" if index else ""
+                path = folder / f"{base}{suffix}{ext}"
+                try:
+                    with path.open("xb"):
+                        pass
+                    break
+                except FileExistsError:
+                    continue
+            else:
+                raise FileExistsError("Could not reserve a unique screenshot filename")
+            try:
+                os.replace(tmp_path, path)
+            except Exception:
+                path.unlink(missing_ok=True)
+                raise
         return path
     except Exception:
         try:
