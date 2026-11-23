@@ -8,7 +8,7 @@ import threading
 import tkinter as tk
 from dataclasses import dataclass
 from pathlib import Path
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 
 from PIL import Image, ImageGrab
 
@@ -573,15 +573,49 @@ class AreaGrabApp:
         open_path(path)
 
     def show_about(self) -> None:
-        messagebox.showinfo(
-            f"О {APP_NAME}",
-            f"{APP_NAME} {__version__}\n\n"
-            "Снимок → Ctrl+V. Без лишних окон.\n\n"
-            f"Горячая клавиша: {self.settings.hotkeys.capture}\n"
-            f"Папка: {self.settings.save.folder}\n\n"
-            f"Сайт: {WEBSITE_URL}",
-            parent=self.root,
-        )
+        """Open a compact, readable About window from the tray."""
+        existing = getattr(self, "_about_window", None)
+        if existing is not None:
+            try:
+                if existing.winfo_exists():
+                    existing.lift()
+                    existing.focus_force()
+                    return
+            except tk.TclError:
+                pass
+        window = tk.Toplevel(self.root)
+        self._about_window = window
+        window.title("О программе — AreaGrab")
+        window.geometry("460x340")
+        window.resizable(False, False)
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        frame = ttk.Frame(window, padding=22)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text="AreaGrab", font=("Segoe UI", 20, "bold")).pack(anchor="w")
+        ttk.Label(frame, text=f"Версия {__version__}", foreground="#64748b").pack(anchor="w", pady=(0, 16))
+        ttk.Label(
+            frame,
+            text="Быстрые скриншоты экрана для Windows.",
+            font=("Segoe UI", 11),
+        ).pack(anchor="w")
+        ttk.Label(
+            frame,
+            text="Выделяйте область, сохраняйте снимки в JPG или PNG, "
+                 "копируйте в буфер обмена и просматривайте недавние снимки.",
+            wraplength=405, justify="left",
+        ).pack(anchor="w", pady=(8, 16))
+        ttk.Label(
+            frame,
+            text=f"Сделать снимок: {self.settings.hotkeys.capture.replace('print_screen', 'PrtScr')}\\n"
+                 "Повторить область: Ctrl+PrtScr",
+            justify="left",
+        ).pack(anchor="w")
+        actions = ttk.Frame(frame)
+        actions.pack(fill="x", pady=(20, 0))
+        ttk.Button(actions, text="Сайт программы", command=lambda: open_url(WEBSITE_URL)).pack(side="left")
+        ttk.Button(actions, text="Закрыть", command=window.destroy).pack(side="right")
+        window.lift()
+        window.focus_force()
 
     def toast(
         self,
