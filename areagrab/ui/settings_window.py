@@ -323,6 +323,17 @@ class SettingsWindow:
     def _save(self) -> bool:
         if self._recording:
             return False
+        hotkey = self.var_hotkey.get().strip().lower()
+        if hotkey and hotkey != self.app.settings.hotkeys.capture:
+            if not validate_hotkey(hotkey):
+                messagebox.showerror(
+                    "Некорректная клавиша",
+                    "Не удалось распознать сочетание. Примеры: print_screen, ctrl+shift+4.",
+                    parent=self.top,
+                )
+                return False
+
+
         s = self.app.settings
         s.advanced.autostart = bool(self.var_autostart.get())
         s.clipboard.copy_image = bool(self.var_copy.get())
@@ -336,15 +347,7 @@ class SettingsWindow:
         s.notifications.duration_ms = int(self.var_duration.get())
         s.notifications.thumbnail = bool(self.var_thumbnail.get())
 
-        hotkey = self.var_hotkey.get().strip().lower()
-        if hotkey and hotkey != s.hotkeys.capture:
-            if not validate_hotkey(hotkey):
-                messagebox.showerror(
-                    "Некорректная клавиша",
-                    "Не удалось распознать сочетание. Примеры: print_screen, ctrl+shift+4.",
-                    parent=self.top,
-                )
-                return False
+        if hotkey:
             s.hotkeys.capture = hotkey
 
         s.validate()
