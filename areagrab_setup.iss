@@ -62,6 +62,26 @@ Filename: "{app}\AreaGrab.exe"; Description: "{cm:LaunchProgram,AreaGrab}"; Flag
 
 
 [Code]
+function OpenEventW(DesiredAccess: Cardinal; InheritHandle: Boolean; Name: String): THandle;
+  external 'OpenEventW@kernel32.dll stdcall';
+function SetEvent(EventHandle: THandle): Boolean;
+  external 'SetEvent@kernel32.dll stdcall';
+function CloseHandle(Handle: THandle): Boolean;
+  external 'CloseHandle@kernel32.dll stdcall';
+
+function RequestAreaGrabExit(): Boolean;
+var
+  EventHandle: THandle;
+begin
+  EventHandle := OpenEventW($0002, False, 'Local\AreaGrab_InstallerShutdown_v1');
+  Result := EventHandle <> 0;
+  if Result then
+  begin
+    Result := SetEvent(EventHandle);
+    CloseHandle(EventHandle);
+  end;
+end;
+
 const
   AreaGrabUninstallKey = 'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{A7D4C2E1-5B3F-4E8A-9C21-6F0D8B7A1E42}_is1';
 
@@ -92,7 +112,8 @@ begin
     'Настройки и сохранённые снимки останутся на месте.';
   if Running then
     Prompt := Prompt + #13#10 + #13#10 +
-      'AreaGrab сейчас запущен. Перед обновлением его нужно закрыть через меню в трее.';
+      'AreaGrab будет закрыт автоматически после подтверждения.' + #13#10 +
+      'Несохранённая история снимков в памяти будет потеряна.';
 
   { Silent installs must opt in to replacing an existing installation. }
   if WizardSilent then
@@ -104,26 +125,36 @@ begin
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  Attempts: Integer;
 begin
   Result := '';
-  { Never replace files while the screenshot hook or tray is still running.
-    Avoid force-killing the process: users may have RAM-only screenshots. }
+  if not CheckForMutexes('AreaGrab_SingleInstance_v1') then
+    Exit;
+  if RequestAreaGrabExit() then
+  begin
+    for Attempts := 1 to 100 do
+    begin
+      if not CheckForMutexes('AreaGrab_SingleInstance_v1') then
+        Exit;
+      Sleep(100);
+    end;
+  end;
+  { Old versions do not listen for shutdown requests. Never force-kill. }
+  if WizardSilent then
+  begin
+    Result := 'AreaGrab не завершился автоматически. Закройте его перед обновлением.';
+    Exit;
+  end;
   while CheckForMutexes('AreaGrab_SingleInstance_v1') do
   begin
-    if WizardSilent then
-    begin
-      Result := 'AreaGrab запущен. Закройте приложение через меню в трее перед обновлением.';
-      Exit;
-    end;
     if MsgBox(
-      'AreaGrab сейчас запущен.' + #13#10 + #13#10 +
-      'Нажмите правой кнопкой мыши на значок AreaGrab возле часов и выберите «Выход».' +
-      ' ' + #13#10 + 'Затем нажмите «Повторить», чтобы продолжить обновление.' + #13#10 + #13#10 +
-      'Настройки и сохранённые скриншоты останутся на месте.',
+      'Не удалось автоматически закрыть AreaGrab.' + #13#10 +
+      'Закройте программу через значок возле часов и нажмите «Повторить».',
       mbConfirmation, MB_RETRYCANCEL
     ) <> IDRETRY then
     begin
-      Result := 'Установка отменена: сначала необходимо закрыть AreaGrab.';
+      Result := 'Обновление отменено: AreaGrab ещё запущен.';
       Exit;
     end;
   end;
