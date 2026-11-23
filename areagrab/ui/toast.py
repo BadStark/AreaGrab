@@ -25,7 +25,7 @@ class Toast:
         message: str,
         thumbnail: Image.Image | None = None,
         actions: list[tuple[str, Callable[[], None]]] | None = None,
-        duration_ms: int = 4000,
+        duration_ms: int = 2200,
         point: tuple[int, int] | None = None,
     ) -> None:
         self.root = root
@@ -169,7 +169,7 @@ class Toast:
 
 
 class ToastManager:
-    def __init__(self, root: tk.Tk, enabled: bool = True, duration_ms: int = 4000) -> None:
+    def __init__(self, root: tk.Tk, enabled: bool = True, duration_ms: int = 2200) -> None:
         self.root = root
         self.enabled = enabled
         self.duration_ms = duration_ms
