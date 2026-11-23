@@ -94,10 +94,12 @@ class TrayIcon:
             pystray.Menu.SEPARATOR,
         ]
 
+        # Native Windows tray menus support nested text menus, not embedded thumbnails.
+        # Paginate the RAM history so older entries remain reachable.
         items.append(pystray.MenuItem(
-            "Последние снимки…",
-            lambda _icon, _item: self.app.post("history"),
-            enabled=bool(self.app.history.items()),
+            "Последние снимки",
+            pystray.Menu(lambda: self._history_page(0)),
+            enabled=lambda _item: bool(self.app.history.items()),
         ))
         items.extend(
             [
@@ -120,6 +122,33 @@ class TrayIcon:
             ]
         )
         return pystray.Menu(*items)
+
+    def _history_page(self, page: int) -> tuple:
+        entries = self.app.history.items()
+        page_size = 8
+        start = page * page_size
+        menu = []
+        if page > 0:
+            menu.append(pystray.MenuItem(
+                "← Более новые",
+                pystray.Menu(lambda: self._history_page(page - 1)),
+            ))
+        for index in range(start, min(start + page_size, len(entries))):
+            shot = entries[index]
+            label = (
+                f"{shot.timestamp:%d.%m %H:%M:%S} · "
+                f"{shot.width}×{shot.height}"
+            )
+            menu.append(pystray.MenuItem(
+                label,
+                lambda _icon, _item, i=index: self.app.post("history_open", i),
+            ))
+        if start + page_size < len(entries):
+            menu.append(pystray.MenuItem(
+                "Более старые →",
+                pystray.Menu(lambda: self._history_page(page + 1)),
+            ))
+        return tuple(menu)
 
     def refresh(self) -> None:
         if self.icon is None:
