@@ -109,9 +109,8 @@ class TrayIcon:
                     "Настройки…", lambda _icon, _item: self.app.post("settings")
                 ),
                 pystray.MenuItem(
-                    "Приостановить работу AreaGrab",
+                    lambda _item: "Возобновить работу AreaGrab" if self.app.hotkeys.paused else "Приостановить работу AreaGrab",
                     lambda _icon, _item: self.app.post("toggle_pause"),
-                    checked=lambda _item: self.app.hotkeys.paused,
                 ),
                 pystray.Menu.SEPARATOR,
                 pystray.MenuItem(
