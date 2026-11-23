@@ -28,6 +28,7 @@ class SettingsWindow:
         self.top.minsize(700, 500)
         self.top.protocol("WM_DELETE_WINDOW", self.close)
         self._recording = False
+        self._loading = True
 
         style = ttk.Style(self.top)
         try:
@@ -50,8 +51,10 @@ class SettingsWindow:
         self.saved_label = ttk.Label(bottom, text="", foreground="#16a34a")
         self.saved_label.pack(side="left")
         ttk.Button(bottom, text="Закрыть", command=self.close).pack(side="right")
+        self.apply_button = ttk.Button(bottom, text="Применить", command=self._save)
+        self.apply_button.pack(side="right", padx=(0, 10))
 
-        self.top.after(50, self._load_values)
+        self.top.after(50, self._load_values)\n        for variable in (self.var_autostart, self.var_copy, self.var_clear_history,\n                         self.var_hotkey, self.var_save_enabled, self.var_folder,\n                         self.var_format, self.var_quality, self.var_template,\n                         self.var_toast, self.var_duration, self.var_thumbnail):\n            variable.trace_add("write", lambda *_args: self._mark_dirty())
         self.top.after(100, self._focus)
 
     def _focus(self) -> None:
@@ -84,102 +87,31 @@ class SettingsWindow:
             tab,
             text="Запускать AreaGrab при входе в Windows",
             variable=self.var_autostart,
-            command=self._save,
+            command=self._mark_dirty,
         ).grid(row=0, column=0, columnspan=2, sticky="w", pady=4)
         ttk.Checkbutton(
             tab,
             text="Копировать снимок в буфер обмена",
             variable=self.var_copy,
-            command=self._save,
+            command=self._mark_dirty,
         ).grid(row=1, column=0, columnspan=2, sticky="w", pady=4)
         ttk.Checkbutton(
             tab,
             text="Очищать историю снимков при выходе",
             variable=self.var_clear_history,
-            command=self._save,
+            command=self._mark_dirty,
         ).grid(row=2, column=0, columnspan=2, sticky="w", pady=4)
-
-        ttk.Separator(tab, orient="horizontal").grid(
-            row=3, column=0, columnspan=2, sticky="ew", pady=14
-        )
-        ttk.Label(
-            tab,
-            text="AreaGrab работает в трее. Нажмите PrtScr в любом приложении.",
-            foreground="#475569",
-        ).grid(row=4, column=0, columnspan=2, sticky="w")
 
     def _build_capture(self) -> None:
         tab = self._tab("Захват")
         self.var_hotkey = tk.StringVar()
-        self.var_delay = tk.IntVar()
-        self.var_dim = tk.DoubleVar()
-
         self._row(tab, 0, "Горячая клавиша")
         hot_row = ttk.Frame(tab)
         hot_row.grid(row=0, column=1, sticky="ew", pady=6)
         self.hotkey_entry = ttk.Entry(hot_row, textvariable=self.var_hotkey, width=26)
         self.hotkey_entry.pack(side="left")
-        self.record_button = ttk.Button(
-            hot_row, text="Записать…", command=self._record_hotkey
-        )
+        self.record_button = ttk.Button(hot_row, text="Записать…", command=self._record_hotkey)
         self.record_button.pack(side="left", padx=(8, 0))
-        ttk.Label(
-            tab,
-            text="Например: print_screen, ctrl+shift+4, alt+shift+s",
-            foreground="#64748b",
-        ).grid(row=1, column=1, sticky="w", pady=(0, 10))
-
-        ttk.Label(
-            tab,
-            text="Ctrl+PrtScr — повторить последнюю выделенную область.",
-            foreground="#475569",
-        ).grid(row=8, column=0, columnspan=2, sticky="w", pady=(12, 0))
-
-        self._row(tab, 2, "Задержка перед захватом")
-        delay = ttk.Combobox(
-            tab,
-            textvariable=self.var_delay,
-            values=(0, 3, 5, 10),
-            state="readonly",
-            width=8,
-        )
-        delay.grid(row=2, column=1, sticky="w")
-        delay.bind("<<ComboboxSelected>>", lambda _e: self._save())
-
-        self._row(tab, 3, "Затемнение экрана")
-        dim_row = ttk.Frame(tab)
-        dim_row.grid(row=3, column=1, sticky="ew")
-        self.dim_scale = ttk.Scale(
-            dim_row,
-            from_=0.2,
-            to=0.7,
-            variable=self.var_dim,
-            command=lambda _v: self._dim_label(),
-            length=220,
-        )
-        self.dim_scale.pack(side="left")
-        self.dim_scale.bind("<ButtonRelease-1>", lambda _e: self._save())
-        self.dim_label = ttk.Label(dim_row, text="40%")
-        self.dim_label.pack(side="left", padx=(8, 0))
-
-        ttk.Separator(tab, orient="horizontal").grid(
-            row=4, column=0, columnspan=2, sticky="ew", pady=14
-        )
-
-        self.snip_status = ttk.Label(tab, text="")
-        self.snip_status.grid(row=5, column=0, columnspan=2, sticky="w")
-        self.snip_button = ttk.Button(
-            tab, text="Отключить PrtScr в Snipping Tool", command=self._fix_snipping
-        )
-        self.snip_button.grid(row=6, column=0, columnspan=2, sticky="w", pady=(6, 0))
-        ttk.Label(
-            tab,
-            text="AreaGrab подавляет PrtScr, пока работает. Если Windows всё равно открывает Snipping Tool — отключите это здесь.",
-            foreground="#64748b",
-            wraplength=560,
-        ).grid(row=7, column=0, columnspan=2, sticky="w", pady=(8, 0))
-
-        self._refresh_snipping_status()
 
     def _build_saving(self) -> None:
         tab = self._tab("Сохранение")
@@ -193,7 +125,7 @@ class SettingsWindow:
             tab,
             text="Сохранять снимки в папку",
             variable=self.var_save_enabled,
-            command=self._save,
+            command=self._mark_dirty,
         ).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 10))
 
         self._row(tab, 1, "Папка")
@@ -218,7 +150,7 @@ class SettingsWindow:
             width=18,
         )
         self.format_box.grid(row=2, column=1, sticky="w")
-        self.format_box.bind("<<ComboboxSelected>>", lambda _e: self._save())
+        self.format_box.bind("<<ComboboxSelected>>", lambda _e: self._mark_dirty())
 
         self._row(tab, 3, "Качество JPG")
         quality_row = ttk.Frame(tab)
@@ -232,7 +164,7 @@ class SettingsWindow:
             length=220,
         )
         quality_scale.pack(side="left")
-        quality_scale.bind("<ButtonRelease-1>", lambda _e: self._save())
+        quality_scale.bind("<ButtonRelease-1>", lambda _e: self._mark_dirty())
         self.quality_label = ttk.Label(quality_row, text="95")
         self.quality_label.pack(side="left", padx=(8, 0))
 
@@ -287,13 +219,13 @@ class SettingsWindow:
             tab,
             text="Показывать уведомление после снимка",
             variable=self.var_toast,
-            command=self._save,
+            command=self._mark_dirty,
         ).grid(row=0, column=0, columnspan=2, sticky="w", pady=4)
         ttk.Checkbutton(
             tab,
             text="Показывать миниатюру",
             variable=self.var_thumbnail,
-            command=self._save,
+            command=self._mark_dirty,
         ).grid(row=1, column=0, columnspan=2, sticky="w", pady=4)
 
         self._row(tab, 2, "Длительность")
@@ -305,7 +237,7 @@ class SettingsWindow:
             width=8,
         )
         duration.grid(row=2, column=1, sticky="w")
-        duration.bind("<<ComboboxSelected>>", lambda _e: self._save())
+        duration.bind("<<ComboboxSelected>>", lambda _e: self._mark_dirty())
         ttk.Label(
             tab,
             text="По умолчанию 2,2 секунды. При наведении мыши уведомление остаётся открытым.",
@@ -363,12 +295,6 @@ class SettingsWindow:
         self._dim_label()
         self._quality_label()
 
-    def _dim_label(self) -> None:
-        try:
-            self.dim_label.config(text=f"{int(self.var_dim.get() * 100)}%")
-        except Exception:
-            pass
-
     def _quality_label(self) -> None:
         try:
             self.quality_label.config(text=str(int(self.var_quality.get())))
@@ -376,6 +302,23 @@ class SettingsWindow:
             pass
 
     # ------------------------------------------------------------- actions
+
+    def _snapshot(self) -> tuple:
+        return (
+            self.var_autostart.get(), self.var_copy.get(), self.var_clear_history.get(),
+            self.var_hotkey.get().strip().lower(), self.var_save_enabled.get(),
+            self.var_folder.get().strip(), self.var_format.get(), int(self.var_quality.get()),
+            self.var_template.get(), self.var_toast.get(), int(self.var_duration.get()),
+            self.var_thumbnail.get(),
+        )
+
+    def _update_apply(self) -> None:
+        dirty = hasattr(self, "_baseline") and self._snapshot() != self._baseline
+        self.apply_button.configure(state="normal" if dirty else "disabled")
+
+    def _mark_dirty(self) -> None:
+        if not self._loading:
+            self._update_apply()
 
     def _save(self) -> None:
         if self._recording:
@@ -409,7 +352,7 @@ class SettingsWindow:
 
         s.validate()
         self.app.settings_changed()
-        self._flash_saved()
+        self._baseline = self._snapshot()\n        self._update_apply()\n        self._flash_saved()\n        return True
 
     def _flash_saved(self) -> None:
         self.saved_label.config(text="Сохранено")
@@ -508,12 +451,16 @@ class SettingsWindow:
                 parent=self.top,
             )
             return
-        try:
-            self._save()
-        except Exception:
-            log.exception("Could not save settings on close")
-        try:
-            self.top.destroy()
-        except tk.TclError:
-            pass
+        if hasattr(self, "_baseline") and self._snapshot() != self._baseline:
+            choice = messagebox.askyesnocancel(
+                "Несохранённые изменения",
+                "Сохранить изменения настроек перед закрытием?\\n\\n"
+                "Да — сохранить; Нет — закрыть без сохранения; Отмена — вернуться.",
+                parent=self.top,
+            )
+            if choice is None:
+                return
+            if choice and not self._save():
+                return
+        self.top.destroy()
         self.app.settings_window = None
