@@ -606,7 +606,7 @@ class AreaGrabApp:
         ).pack(anchor="w", pady=(8, 16))
         ttk.Label(
             frame,
-            text=f"Сделать снимок: {self.settings.hotkeys.capture.replace('print_screen', 'PrtScr')}\\n"
+            text=f"Сделать снимок: {self.settings.hotkeys.capture.replace('print_screen', 'PrtScr')}\n"
                  "Повторить область: Ctrl+PrtScr",
             justify="left",
         ).pack(anchor="w")
