@@ -27,6 +27,8 @@ ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 CloseApplications=yes
 RestartApplications=no
+; A running instance must be closed before overwriting its binaries.
+; AppMutex matches areagrab/constants.py and is stable across upgrades.
 AppMutex=AreaGrab_SingleInstance_v1
 SetupLogging=yes
 ; --- Legal documents ---
@@ -58,3 +60,30 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 [Run]
 Filename: "{app}\AreaGrab.exe"; Description: "{cm:LaunchProgram,AreaGrab}"; Flags: nowait postinstall skipifsilent
 
+
+[Code]
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  Result := '';
+  { Never replace files while the screenshot hook or tray is still running.
+    Avoid force-killing the process: users may have RAM-only screenshots. }
+  while CheckForMutexes('AreaGrab_SingleInstance_v1') do
+  begin
+    if WizardSilent then
+    begin
+      Result := 'AreaGrab is running. Exit AreaGrab from the tray before updating.';
+      Exit;
+    end;
+    if MsgBox(
+      'AreaGrab is still running.' + #13#10 + #13#10 +
+      'Right-click the AreaGrab icon in the Windows notification area and choose Exit.' +
+      #13#10 + 'Then click Retry to continue updating.' + #13#10 + #13#10 +
+      'Your saved screenshots and settings will not be deleted.',
+      mbConfirmation, MB_RETRYCANCEL
+    ) <> IDRETRY then
+    begin
+      Result := 'Installation cancelled: AreaGrab must be closed first.';
+      Exit;
+    end;
+  end;
+end;
