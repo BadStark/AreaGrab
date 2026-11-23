@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from support import temp_dir
@@ -64,6 +65,20 @@ class StorageTests(unittest.TestCase):
             self.assertIsNotNone(jpg_path)
             self.assertTrue(jpg_path.exists())
             self.assertEqual(jpg_path.suffix, ".jpg")
+
+    def test_parallel_saves_do_not_overwrite(self) -> None:
+        with temp_dir() as tmp:
+            settings = Settings.default()
+            settings.save.folder = tmp
+            settings.save.format = "png"
+            settings.save.filename_template = "same-name"
+            def save(index: int):
+                return save_image(Image.new("RGB", (8, 8), (index, 0, 0)), settings)
+            with ThreadPoolExecutor(max_workers=8) as executor:
+                paths = list(executor.map(save, range(20)))
+            self.assertEqual(len(set(paths)), 20)
+            for path in paths:
+                self.assertTrue(path.exists())
 
     def test_folder_helpers(self) -> None:
         with temp_dir() as tmp:
