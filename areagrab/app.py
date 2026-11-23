@@ -18,6 +18,7 @@ from . import storage
 from .config import Settings
 from .constants import APP_NAME, LOG_DIR, SETTINGS_PATH, WEBSITE_URL
 from .history import History
+from .installer_shutdown import listen_for_installer_shutdown
 from .hotkeys import HotkeyError, HotkeyManager
 from .logging_setup import setup_logging
 from .ui.first_run import FirstRunWindow
@@ -101,6 +102,7 @@ class AreaGrabApp:
         set_autostart(self.settings.advanced.autostart)
         self.overlay.set_dim(self.settings.capture.dim)
         self.tray.start()
+        listen_for_installer_shutdown(lambda: self.post("quit"))
         try:
             self.hotkeys.register(self.settings.hotkeys.capture)
             self._applied_hotkey = self.settings.hotkeys.capture
