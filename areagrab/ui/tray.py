@@ -78,7 +78,7 @@ class TrayIcon:
     def _build_menu(self) -> pystray.Menu:
         items: list[pystray.MenuItem] = [
             pystray.MenuItem(
-                "Сделать снимок (PrtScr)",
+                lambda _item: "Сделать снимок (" + ("PrtScr" if self.app.settings.hotkeys.capture == "print_screen" else self.app.settings.hotkeys.capture) + ")",
                 lambda _icon, _item: self.app.post("capture"),
                 default=True,
             ),
