@@ -80,7 +80,7 @@ class CaptureSettings:
 @dataclass
 class NotificationSettings:
     toast: bool = True
-    duration_ms: int = 4000
+    duration_ms: int = 2200
     thumbnail: bool = True
 
 
@@ -173,7 +173,7 @@ class Settings:
 
         notif = _dict(raw.get("notifications"))
         settings.notifications.toast = _bool(notif.get("toast"), True)
-        settings.notifications.duration_ms = _int(notif.get("duration_ms"), 4000)
+        settings.notifications.duration_ms = _int(notif.get("duration_ms"), 2200)
         settings.notifications.thumbnail = _bool(notif.get("thumbnail"), True)
 
         adv = _dict(raw.get("advanced"))
