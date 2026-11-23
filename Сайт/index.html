@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AreaGrab — screenshot area, paste with Ctrl+V (Windows)</title>
+    <meta name="description" content="AreaGrab is the fastest way to capture a screen region on Windows: press PrtScr, select an area, and it is already in your clipboard. Save to any folder or don't save at all. Free v1.1.">
+    <meta name="keywords" content="screenshot to clipboard Windows, region screenshot, PrtScr, screenshot folder, Lightshot alternative, ShareX alternative, Snipaste alternative, fast screenshot tool">
+    <meta name="author" content="Orlov Andrew">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://areagrab.com/">
+    <link rel="alternate" hreflang="en" href="https://areagrab.com/">
+    <link rel="alternate" hreflang="ru" href="https://areagrab.com/ru.html">
+    <meta property="og:title" content="AreaGrab — Screenshot. Paste. Done.">
+    <meta property="og:description" content="Press PrtScr, select an area, and it is already in your clipboard. Save to any folder or don't save at all.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://areagrab.com/">
+    <meta property="og:image" content="https://areagrab.com/areagrab_v2.png">
+    <link rel="icon" href="areagrab_v2.png" type="image/png">
+
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --ink: #0b1220;
+            --muted: #475569;
+            --line: #e2e8f0;
+            --accent: #16a34a;
+            --accent-2: #22c55e;
+            --navy: #0b1220;
+            --radius: 16px;
+            --shadow: 0 18px 50px rgba(15, 23, 42, .10);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: inherit; }
+        .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+        .nav {
+            position: sticky; top: 0; z-index: 20;
+            background: rgba(248, 250, 252, .86);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, .8);
+        }
+        .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 18px; }
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; letter-spacing: -.02em; font-size: 1.15rem; }
+        .brand img { width: 32px; height: 32px; border-radius: 8px; }
+        .nav-links { display: flex; align-items: center; gap: 22px; font-size: .95rem; color: var(--muted); }
+        .nav-links a { text-decoration: none; }
+        .nav-links a:hover { color: var(--ink); }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--accent); color: #fff; text-decoration: none;
+            font-weight: 700; padding: 12px 22px; border-radius: 999px;
+            font-size: 1rem; border: 0; cursor: pointer;
+            box-shadow: 0 10px 24px rgba(22, 163, 74, .24);
+            transition: transform .12s ease, background .12s ease;
+        }
+        .btn:hover { background: #15803d; transform: translateY(-1px); }
+        .btn.secondary { background: #fff; color: var(--ink); box-shadow: none; border: 1px solid var(--line); }
+        .btn.secondary:hover { background: #f1f5f9; }
+        .btn.small { padding: 9px 16px; font-size: .92rem; }
+
+        .hero { padding: 72px 0 56px; }
+        .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+        .eyebrow { display: inline-flex; align-items: center; gap: 8px; background: #dcfce7; color: #166534; font-weight: 700; font-size: .8rem; padding: 6px 12px; border-radius: 999px; letter-spacing: .02em; }
+        h1 { font-size: clamp(2.6rem, 5vw, 4rem); line-height: 1.04; letter-spacing: -.045em; margin: 18px 0 18px; }
+        h1 span { color: var(--accent); }
+        .lead { font-size: 1.18rem; color: var(--muted); max-width: 540px; margin-bottom: 26px; }
+        .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+        .meta { margin-top: 16px; font-size: .88rem; color: #64748b; display: flex; flex-wrap: wrap; gap: 14px; }
+        .meta span::before { content: "✓"; color: var(--accent); font-weight: 800; margin-right: 6px; }
+
+        .hero-visual {
+            position: relative; border-radius: 22px; overflow: hidden;
+            background: #0b1220; box-shadow: var(--shadow); border: 1px solid #1e293b;
+            min-height: 360px;
+        }
+        .fake-window { position: absolute; inset: 22px; background: #f8fafc; border-radius: 12px; overflow: hidden; opacity: .38; filter: saturate(.7); }
+        .fake-bar { height: 30px; background: #e2e8f0; display: flex; align-items: center; gap: 6px; padding: 0 10px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; }
+        .fake-content { padding: 18px; display: grid; gap: 10px; }
+        .fake-line { height: 10px; background: #cbd5e1; border-radius: 5px; }
+        .fake-line.w60 { width: 60%; } .fake-line.w80 { width: 80%; } .fake-line.w40 { width: 40%; }
+        .selection {
+            position: absolute; left: 15%; top: 32%; width: 54%; height: 40%;
+            border: 2px solid var(--accent-2);
+            background: transparent;
+            box-shadow: 0 0 0 9999px rgba(2, 6, 23, .58);
+            border-radius: 2px;
+        }
+        .selection-label {
+            position: absolute; left: 15%; top: calc(32% + 40% + 8px);
+            background: #0b1220; color: #f8fafc; font-size: .78rem; font-weight: 700;
+            padding: 4px 8px; border-radius: 6px;
+        }
+        .fake-toast {
+            position: absolute; right: 18px; bottom: 18px; width: 250px;
+            background: #0f172a; color: #f8fafc; border: 1px solid #1e293b;
+            border-radius: 12px; padding: 12px; font-size: .8rem; box-shadow: 0 10px 30px rgba(0,0,0,.35);
+        }
+        .fake-toast strong { display: block; font-size: .86rem; margin-bottom: 2px; }
+        .fake-toast small { color: #94a3b8; }
+        .cursor { position: absolute; left: 68%; top: 70%; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 16px solid #fff; transform: rotate(-35deg); filter: drop-shadow(0 2px 2px rgba(0,0,0,.5)); }
+
+        .strip { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #fff; }
+        .strip-inner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 22px 0; }
+        .strip-item { display: flex; gap: 12px; align-items: flex-start; }
+        .strip-icon { font-size: 1.4rem; line-height: 1; }
+        .strip-item b { display: block; font-size: .95rem; }
+        .strip-item span { color: var(--muted); font-size: .86rem; }
+
+        section { padding: 78px 0; }
+        .section-head { max-width: 680px; margin-bottom: 38px; }
+        .section-head h2 { font-size: clamp(1.9rem, 3.2vw, 2.7rem); letter-spacing: -.03em; line-height: 1.1; margin-bottom: 12px; }
+        .section-head p { color: var(--muted); font-size: 1.05rem; }
+        .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+        .step-num { width: 34px; height: 34px; border-radius: 10px; background: #dcfce7; color: #166534; font-weight: 800; display: grid; place-items: center; margin-bottom: 14px; }
+        .step h3 { font-size: 1.15rem; margin-bottom: 6px; }
+        .step p { color: var(--muted); font-size: .95rem; }
+        kbd { background: #0b1220; color: #fff; border-radius: 5px; padding: 2px 7px; font-size: .82em; font-family: "Cascadia Code", Consolas, monospace; }
+
+        .features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .feature { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+        .feature .ico { font-size: 1.35rem; margin-bottom: 10px; }
+        .feature h3 { font-size: 1rem; margin-bottom: 5px; }
+        .feature p { color: var(--muted); font-size: .9rem; }
+
+        .pro-wrap { background: var(--navy); color: #f8fafc; border-radius: 24px; padding: 44px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 36px; align-items: center; }
+        .pro-wrap h2 { font-size: clamp(1.9rem, 3vw, 2.6rem); letter-spacing: -.03em; margin-bottom: 12px; }
+        .pro-wrap p { color: #cbd5e1; }
+        .pro-list { list-style: none; display: grid; gap: 9px; margin-top: 20px; }
+        .pro-list li::before { content: "✓"; color: var(--accent-2); font-weight: 800; margin-right: 8px; }
+        .price-card { background: #111c30; border: 1px solid #263449; border-radius: 18px; padding: 26px; }
+        .price-card .tag { color: var(--accent-2); font-weight: 800; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
+        .price { font-size: 2.6rem; font-weight: 800; letter-spacing: -.04em; margin: 8px 0 2px; }
+        .price small { font-size: 1rem; color: #94a3b8; font-weight: 500; }
+        .price-note { color: #94a3b8; font-size: .85rem; margin-bottom: 18px; }
+        .waitlist { display: block; text-align: center; margin-top: 10px; color: #94a3b8; font-size: .85rem; }
+        .waitlist a { color: var(--accent-2); }
+
+        .compare { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; font-size: .93rem; }
+        .compare th, .compare td { padding: 13px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+        .compare th { background: #f1f5f9; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #475569; }
+        .compare tr:last-child td { border-bottom: 0; }
+        .compare td:first-child { font-weight: 700; }
+        .yes { color: #15803d; font-weight: 700; }
+        .no { color: #b91c1c; }
+
+        details { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 10px; }
+        details summary { cursor: pointer; font-weight: 700; }
+        details p { color: var(--muted); margin-top: 8px; font-size: .95rem; }
+
+        .download-card { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 34px; box-shadow: var(--shadow); display: grid; grid-template-columns: 1.2fr .8fr; gap: 26px; align-items: center; }
+        .download-card h2 { font-size: 2rem; letter-spacing: -.03em; margin-bottom: 8px; }
+        .download-card p { color: var(--muted); }
+        .hash { font-family: "Cascadia Code", Consolas, monospace; font-size: .72rem; color: #64748b; word-break: break-all; background: #f8fafc; border: 1px solid var(--line); padding: 8px 10px; border-radius: 8px; margin-top: 12px; }
+        .fine { font-size: .8rem; color: #64748b; margin-top: 10px; }
+
+        footer { background: #fff; border-top: 1px solid var(--line); padding: 34px 0; color: #64748b; font-size: .9rem; }
+        .footer-inner { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+        footer a { color: #475569; text-decoration: none; margin-right: 16px; }
+        footer a:hover { color: var(--ink); }
+
+        @media (max-width: 900px) {
+            .hero-grid, .pro-wrap, .download-card { grid-template-columns: 1fr; }
+            .features { grid-template-columns: repeat(2, 1fr); }
+            .steps { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .strip-inner { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 560px) {
+            .features { grid-template-columns: 1fr; }
+            h1 { font-size: 2.4rem; }
+            .hero { padding-top: 44px; }
+            .pro-wrap, .download-card { padding: 26px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav-inner">
+            <a class="brand" href="#top">
+                <img src="areagrab_v2.png" alt="AreaGrab icon">
+                AreaGrab
+            </a>
+            <div class="nav-links">
+                <a href="#how">How it works</a>
+                <a href="#features">Features</a>
+                <a href="#pro">Pro</a>
+                <a href="#compare">Compare</a>
+                <a href="#faq">FAQ</a>
+                <a href="ru.html">RU</a>
+            </div>
+            <a class="btn small" href="#download">Download free</a>
+        </div>
+    </nav>
+
+    <header class="hero" id="top">
+        <div class="container hero-grid">
+            <div>
+                <span class="eyebrow">Free v1.1 · Windows 10/11</span>
+                <h1>Screenshot.<br>Paste. <span>Done.</span></h1>
+                <p class="lead">Press <kbd>PrtScr</kbd>, select an area, release the mouse. AreaGrab puts it straight into your clipboard — and saves it to the folder you choose, if you want.</p>
+                <div class="cta-row">
+                    <a class="btn" href="#download">Download free</a>
+                    <a class="btn secondary" href="#pro">See Pro</a>
+                </div>
+                <div class="meta">
+                    <span>No account</span>
+                    <span>No admin required</span>
+                    <span>Works offline</span>
+                </div>
+            </div>
+
+            <div class="hero-visual" aria-hidden="true">
+                <div class="fake-window">
+                    <div class="fake-bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
+                    <div class="fake-content">
+                        <div class="fake-line w60"></div>
+                        <div class="fake-line w80"></div>
+                        <div class="fake-line w40"></div>
+                        <div class="fake-line w80"></div>
+                        <div class="fake-line w60"></div>
+                    </div>
+                </div>
+                <div class="selection"></div>
+                <div class="selection-label">640 × 480</div>
+                <div class="cursor"></div>
+                <div class="fake-toast">
+                    <strong>Copied to clipboard</strong>
+                    <small>Saved: AreaGrab_2026-11-13.png</small>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="strip">
+        <div class="container strip-inner">
+            <div class="strip-item"><div class="strip-icon">⌨️</div><div><b>PrtScr without conflict</b><span>AreaGrab suppresses the Snipping Tool hotkey while it runs.</span></div></div>
+            <div class="strip-item"><div class="strip-icon">📋</div><div><b>Clipboard first</b><span>Paste into Telegram, Slack, Gmail or Word with Ctrl+V.</span></div></div>
+            <div class="strip-item"><div class="strip-icon">📁</div><div><b>Your folder — or no file</b><span>Choose any folder, or turn saving off and keep only the clipboard.</span></div></div>
+        </div>
+    </div>
+
+    <section id="how">
+        <div class="container">
+            <div class="section-head">
+                <h2>Three actions. No preview window.</h2>
+                <p>AreaGrab was built by a QA engineer who takes dozens of screenshots a day. The default flow has no editor, no “Save as” dialog and no extra click.</p>
+            </div>
+            <div class="steps">
+                <div class="step"><div class="step-num">1</div><h3>Press PrtScr</h3><p>The screen dims. AreaGrab is ready — even if the app is minimized to the tray.</p></div>
+                <div class="step"><div class="step-num">2</div><h3>Select an area</h3><p>Drag with the left mouse button. The selection stays bright; the rest dims. Esc cancels.</p></div>
+                <div class="step"><div class="step-num">3</div><h3>Release and paste</h3><p>The image is already in your clipboard. A small toast confirms the file and folder. Press Ctrl+V anywhere.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" style="padding-top:0">
+        <div class="container">
+            <div class="section-head">
+                <h2>Everything you need. Nothing you don’t.</h2>
+                <p>Fast defaults, with control when you need it.</p>
+            </div>
+            <div class="features">
+                <div class="feature"><div class="ico">📋</div><h3>Instant clipboard</h3><p>Copies the image automatically, so Ctrl+V works immediately.</p></div>
+                <div class="feature"><div class="ico">📁</div><h3>Any save folder</h3><p>Pick a folder, open it from the toast, or reset to Pictures\Screenshots.</p></div>
+                <div class="feature"><div class="ico">🚫</div><h3>No-save mode</h3><p>Uncheck “Save to folder” and no file is created — clipboard only.</p></div>
+                <div class="feature"><div class="ico">⌨️</div><h3>Your hotkey</h3><p>PrtScr by default. Record any combination you like in Settings.</p></div>
+                <div class="feature"><div class="ico">🖥️</div><h3>Multi-monitor & DPI</h3><p>Per-monitor DPI awareness so the selection matches real pixels at 125–200%.</p></div>
+                <div class="feature"><div class="ico">🕘</div><h3>Recent shots</h3><p>The last 10 screenshots stay in memory; re-copy one from the tray menu.</p></div>
+                <div class="feature"><div class="ico">🖼️</div><h3>PNG or JPG</h3><p>JPG for small files, PNG when text must stay crisp. Quality is adjustable.</p></div>
+                <div class="feature"><div class="ico">🪶</div><h3>No admin, no bloat</h3><p>Per-user install. No UAC prompt. Sits quietly in the tray.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pro" style="padding-top:0">
+        <div class="container">
+            <div class="pro-wrap">
+                <div>
+                    <span class="eyebrow" style="background:#052e1a;color:#86efac">Pro is in development</span>
+                    <h2>For people who communicate with screenshots all day.</h2>
+                    <p>AreaGrab Pro adds the workflow around the capture: mark up, pin, extract text, find an old shot. The free core stays free.</p>
+                    <ul class="pro-list">
+                        <li>Arrows, boxes, text, blur and step numbers</li>
+                        <li>Pin a screenshot on top of other windows</li>
+                        <li>Offline OCR — copy text from an image</li>
+                        <li>Searchable history of recent screenshots</li>
+                        <li>Custom hotkeys and copy-as-file/path</li>
+                    </ul>
+                </div>
+                <div class="price-card">
+                    <div class="tag">Lifetime license</div>
+                    <div class="price">$14.99 <small>one-time</small></div>
+                    <div class="price-note">Launch price $9.99 for the first 200 users. 3 devices. 1 year of updates. 30-day refund.</div>
+                    <a class="btn" href="mailto:pro@areagrab.com?subject=AreaGrab%20Pro%20waitlist&body=Hi!%20I%20want%20AreaGrab%20Pro.%20My%20main%20use%20case%3A%20" style="width:100%">Join the Pro waitlist</a>
+                    <span class="waitlist">No payment now. We’ll email you when Pro is ready.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="compare" style="padding-top:0">
+        <div class="container">
+            <div class="section-head">
+                <h2>How it compares</h2>
+                <p>Honest differences, not marketing. Every tool below is good at something.</p>
+            </div>
+            <table class="compare">
+                <thead><tr><th>Tool</th><th>Price</th><th>Best at</th><th>Where AreaGrab differs</th></tr></thead>
+                <tbody>
+                    <tr><td>Windows Snipping Tool</td><td>Free, built in</td><td>Being everywhere; OCR</td><td>AreaGrab is clipboard-first and saves to your folder automatically; no extra Save click.</td></tr>
+                    <tr><td>ShareX</td><td>Free, open source</td><td>Power-user workflows, uploads, video</td><td>AreaGrab is intentionally smaller: one hotkey, one selection, one result.</td></tr>
+                    <tr><td>Snipaste</td><td>Free / Pro $19.99</td><td>Pin to screen, annotations</td><td>AreaGrab’s default flow has no editor and no preview; Pro adds those on demand.</td></tr>
+                    <tr><td>Lightshot</td><td>Free</td><td>Quick upload/share links</td><td>AreaGrab saves locally and does not upload your screenshots.</td></tr>
+                    <tr><td>Snagit</td><td>$62.99 / $39 yr</td><td>Full editor, video, enterprise</td><td>AreaGrab is a focused utility for people who just need the shot.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="faq" style="padding-top:0">
+        <div class="container">
+            <div class="section-head"><h2>Questions</h2></div>
+            <details open><summary>Does PrtScr open Snipping Tool too?</summary><p>AreaGrab suppresses PrtScr while it is running, so Snipping Tool should not open. If it does, Settings → Capture has a one-click fix for the Windows setting and an option to choose another hotkey.</p></details>
+            <details><summary>Do I need administrator rights?</summary><p>No for normal use. AreaGrab installs per-user and does not request UAC. Capturing over a window that itself runs as administrator requires running AreaGrab as administrator — that is an optional limitation of Windows, not a requirement.</p></details>
+            <details><summary>Where are my screenshots saved?</summary><p>By default in <code>Pictures\Screenshots</code>. You can choose any folder in Settings → Saving. The toast after each capture shows the file name and folder.</p></details>
+            <details><summary>How do I stop creating files?</summary><p>Uncheck “Save to folder” in Settings → Saving. The screenshot stays in the clipboard and in the in-memory history only. No file is written.</p></details>
+            <details><summary>How do I paste a screenshot?</summary><p>After capture, open Telegram, Slack, Gmail, Word, Figma or any app that accepts images and press <kbd>Ctrl+V</kbd>. On Windows you can also use <kbd>Win+V</kbd> clipboard history if it is enabled.</p></details>
+            <details><summary>Why does Windows SmartScreen warn me?</summary><p>AreaGrab 1.1 is not code-signed yet, so Windows may show “Unknown publisher”. The installer is built from this project; the SHA-256 is published below. A signed build is planned.</p></details>
+            <details><summary>Is there a Pro version?</summary><p>Pro is in development. Join the waitlist and you will get the launch price. The free version stays useful — clipboard, folder and no-save mode will not be paywalled.</p></details>
+        </div>
+    </section>
+
+    <section id="download" style="padding-top:0">
+        <div class="container">
+            <div class="download-card">
+                <div>
+                    <h2>Get AreaGrab 1.1</h2>
+                    <p>Windows 10/11 · x64 · no admin required.</p>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+                        <a class="btn" href="downloads/AreaGrab_Setup_1.1.0.exe">Download installer (15.0 MB)</a>
+                        <a class="btn secondary" href="downloads/AreaGrab_1.1.0_portable.zip">Portable ZIP (19.6 MB)</a>
+                    </div>
+                    <div class="hash">Installer SHA-256: DCF8BC4447D1B3AAA7A3A8827A3FB42D28B5FDC3E02EF4224C62DC7B13832CF5</div>
+                    <div class="hash">Portable ZIP SHA-256: 81C7C4CFF3A6668AE1C6F59227600D64C03EED2F7A1DA0F473C7009D03F279B4</div>
+                    <p class="fine">If the installer reports “Cannot create folder … Temp … Access denied”, use the portable ZIP: extract it to Desktop/Documents and run <code>AreaGrab.exe</code>. It needs no installer, admin rights, Start Menu, or registry. You can also download <a href="downloads/Install-AreaGrab.cmd">Install-AreaGrab.cmd</a>, put it next to the installer and run it to redirect the temp folder.</p>
+                    <p class="fine">If Windows shows “Unknown publisher”, choose “More info” → “Run anyway”. The source tree includes the full build. A signed release is planned.</p>
+                </div>
+                <div>
+                    <h3 style="margin-bottom:8px">What’s new in 1.1</h3>
+                    <ul style="list-style:none;display:grid;gap:8px;color:#475569;font-size:.92rem">
+                        <li>✓ Automatic clipboard copy</li>
+                        <li>✓ Custom save folder + no-save mode</li>
+                        <li>✓ Settings, tray menu, recent screenshots</li>
+                        <li>✓ Native hotkey hook (no admin)</li>
+                        <li>✓ DPI-aware multi-monitor selection</li>
+                        <li>✓ Per-user installer, no UAC</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-inner">
+            <div>© 2026 AreaGrab · Built by a QA engineer.</div>
+            <div>
+                <a href="privacy.html">Privacy</a>
+                <a href="terms.html">Terms</a>
+                <a href="mailto:admin@areagrab.com">Contact</a>
+                <a href="ru.html">Русский</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "save": {
+    "enabled": true,
+    "folder": "E:\\WorkPlace\\AreaGrab\\Output_v11\\AreaGrab_1.1.0_portable\\data\\Screenshots",
+    "format": "jpg",
+    "jpeg_quality": 95,
+    "filename_template": "AreaGrab_{date}_{time}"
+  },
+  "clipboard": {
+    "copy_image": true,
+    "history_size": 10,
+    "clear_on_exit": true
+  },
+  "hotkeys": {
+    "capture": "print_screen",
+    "fullscreen": ""
+  },
+  "capture": {
+    "include_cursor": false,
+    "delay_seconds": 0,
+    "dim": 0.4,
+    "sound": false
+  },
+  "notifications": {
+    "toast": true,
+    "duration_ms": 4000,
+    "thumbnail": true
+  },
+  "advanced": {
+    "autostart": false,
+    "start_minimized": true,
+    "check_updates": true,
+    "language": "ru",
+    "theme": "system",
+    "first_run_done": true
+  },
+  "license": {}
+}

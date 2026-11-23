@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AreaGrab — скриншот области сразу в буфер обмена (Windows)</title>
+    <meta name="description" content="AreaGrab — самый быстрый способ снять область экрана на Windows: PrtScr, выделили, отпустили — снимок уже в буфере. Сохранение в любую папку или без файлов. Бесплатно, v1.1.">
+    <meta name="keywords" content="скриншот в буфер обмена, скриншотер Windows, PrtScr, сохранить скриншот в папку, аналог Lightshot, AreaGrab">
+    <meta name="author" content="Орлов Андрей">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://areagrab.com/ru.html">
+    <link rel="alternate" hreflang="en" href="https://areagrab.com/">
+    <link rel="alternate" hreflang="ru" href="https://areagrab.com/ru.html">
+    <meta property="og:title" content="AreaGrab — Скриншот. Вставил. Готово.">
+    <meta property="og:description" content="PrtScr → выделили → Ctrl+V. Снимок уже в буфере, файл — по желанию.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://areagrab.com/ru.html">
+    <link rel="icon" href="areagrab_v2.png" type="image/png">
+    <style>
+        :root { --bg:#f8fafc; --surface:#fff; --ink:#0b1220; --muted:#475569; --line:#e2e8f0; --accent:#16a34a; --accent-2:#22c55e; --navy:#0b1220; --radius:16px; --shadow:0 18px 50px rgba(15,23,42,.10); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; }
+        a { color:inherit; }
+        .container { max-width:1080px; margin:0 auto; padding:0 24px; }
+        .nav { position:sticky; top:0; z-index:20; background:rgba(248,250,252,.88); backdrop-filter:blur(12px); border-bottom:1px solid rgba(226,232,240,.8); }
+        .nav-inner { display:flex; align-items:center; justify-content:space-between; height:68px; gap:18px; }
+        .brand { display:flex; align-items:center; gap:10px; text-decoration:none; font-weight:800; letter-spacing:-.02em; font-size:1.15rem; }
+        .brand img { width:32px; height:32px; border-radius:8px; }
+        .nav-links { display:flex; align-items:center; gap:22px; font-size:.95rem; color:var(--muted); }
+        .nav-links a { text-decoration:none; } .nav-links a:hover { color:var(--ink); }
+        .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; background:var(--accent); color:#fff; text-decoration:none; font-weight:700; padding:12px 22px; border-radius:999px; font-size:1rem; border:0; cursor:pointer; box-shadow:0 10px 24px rgba(22,163,74,.24); transition:transform .12s ease,background .12s ease; }
+        .btn:hover { background:#15803d; transform:translateY(-1px); }
+        .btn.secondary { background:#fff; color:var(--ink); box-shadow:none; border:1px solid var(--line); }
+        .btn.small { padding:9px 16px; font-size:.92rem; }
+        .hero { padding:70px 0 54px; }
+        .hero-grid { display:grid; grid-template-columns:1.05fr .95fr; gap:48px; align-items:center; }
+        .eyebrow { display:inline-flex; align-items:center; gap:8px; background:#dcfce7; color:#166534; font-weight:700; font-size:.8rem; padding:6px 12px; border-radius:999px; }
+        h1 { font-size:clamp(2.6rem,5vw,4rem); line-height:1.04; letter-spacing:-.045em; margin:18px 0; }
+        h1 span { color:var(--accent); }
+        .lead { font-size:1.18rem; color:var(--muted); max-width:540px; margin-bottom:26px; }
+        .cta-row { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+        .meta { margin-top:16px; font-size:.88rem; color:#64748b; display:flex; flex-wrap:wrap; gap:14px; }
+        .meta span::before { content:"✓"; color:var(--accent); font-weight:800; margin-right:6px; }
+        .hero-visual { position:relative; border-radius:22px; overflow:hidden; background:#0b1220; box-shadow:var(--shadow); border:1px solid #1e293b; min-height:360px; }
+        .fake-window { position:absolute; inset:22px; background:#f8fafc; border-radius:12px; overflow:hidden; opacity:.38; }
+        .fake-bar { height:30px; background:#e2e8f0; display:flex; align-items:center; gap:6px; padding:0 10px; }
+        .dot { width:8px; height:8px; border-radius:50%; background:#94a3b8; }
+        .fake-content { padding:18px; display:grid; gap:10px; }
+        .fake-line { height:10px; background:#cbd5e1; border-radius:5px; }
+        .w60{width:60%}.w80{width:80%}.w40{width:40%}
+        .selection { position:absolute; left:15%; top:32%; width:54%; height:40%; border:2px solid var(--accent-2); box-shadow:0 0 0 9999px rgba(2,6,23,.58); }
+        .selection-label { position:absolute; left:15%; top:calc(32% + 40% + 8px); background:#0b1220; color:#f8fafc; font-size:.78rem; font-weight:700; padding:4px 8px; border-radius:6px; }
+        .fake-toast { position:absolute; right:18px; bottom:18px; width:250px; background:#0f172a; color:#f8fafc; border:1px solid #1e293b; border-radius:12px; padding:12px; font-size:.8rem; box-shadow:0 10px 30px rgba(0,0,0,.35); }
+        .fake-toast strong { display:block; font-size:.86rem; margin-bottom:2px; }
+        .fake-toast small { color:#94a3b8; }
+        .strip { border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:#fff; }
+        .strip-inner { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; padding:22px 0; }
+        .strip-item { display:flex; gap:12px; align-items:flex-start; }
+        .strip-icon { font-size:1.4rem; line-height:1; }
+        .strip-item b { display:block; font-size:.95rem; } .strip-item span { color:var(--muted); font-size:.86rem; }
+        section { padding:76px 0; }
+        .section-head { max-width:680px; margin-bottom:36px; }
+        .section-head h2 { font-size:clamp(1.9rem,3.2vw,2.7rem); letter-spacing:-.03em; line-height:1.1; margin-bottom:12px; }
+        .section-head p { color:var(--muted); font-size:1.05rem; }
+        .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+        .step { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px; }
+        .step-num { width:34px; height:34px; border-radius:10px; background:#dcfce7; color:#166534; font-weight:800; display:grid; place-items:center; margin-bottom:14px; }
+        .step h3 { font-size:1.15rem; margin-bottom:6px; } .step p { color:var(--muted); font-size:.95rem; }
+        kbd { background:#0b1220; color:#fff; border-radius:5px; padding:2px 7px; font-size:.82em; font-family:"Cascadia Code",Consolas,monospace; }
+        .features { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+        .feature { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; }
+        .feature .ico { font-size:1.35rem; margin-bottom:10px; } .feature h3 { font-size:1rem; margin-bottom:5px; } .feature p { color:var(--muted); font-size:.9rem; }
+        .pro-wrap { background:var(--navy); color:#f8fafc; border-radius:24px; padding:44px; display:grid; grid-template-columns:1.1fr .9fr; gap:36px; align-items:center; }
+        .pro-wrap h2 { font-size:clamp(1.9rem,3vw,2.6rem); letter-spacing:-.03em; margin-bottom:12px; } .pro-wrap p { color:#cbd5e1; }
+        .pro-list { list-style:none; display:grid; gap:9px; margin-top:20px; } .pro-list li::before { content:"✓"; color:var(--accent-2); font-weight:800; margin-right:8px; }
+        .price-card { background:#111c30; border:1px solid #263449; border-radius:18px; padding:26px; }
+        .price-card .tag { color:var(--accent-2); font-weight:800; font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; }
+        .price { font-size:2.6rem; font-weight:800; letter-spacing:-.04em; margin:8px 0 2px; } .price small { font-size:1rem; color:#94a3b8; font-weight:500; }
+        .price-note { color:#94a3b8; font-size:.85rem; margin-bottom:18px; }
+        .waitlist { display:block; text-align:center; margin-top:10px; color:#94a3b8; font-size:.85rem; } .waitlist a { color:var(--accent-2); }
+        details { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:10px; }
+        details summary { cursor:pointer; font-weight:700; } details p { color:var(--muted); margin-top:8px; font-size:.95rem; }
+        .download-card { background:#fff; border:1px solid var(--line); border-radius:22px; padding:34px; box-shadow:var(--shadow); display:grid; grid-template-columns:1.2fr .8fr; gap:26px; align-items:center; }
+        .download-card h2 { font-size:2rem; letter-spacing:-.03em; margin-bottom:8px; } .download-card p { color:var(--muted); }
+        .hash { font-family:"Cascadia Code",Consolas,monospace; font-size:.72rem; color:#64748b; word-break:break-all; background:#f8fafc; border:1px solid var(--line); padding:8px 10px; border-radius:8px; margin-top:12px; }
+        .fine { font-size:.8rem; color:#64748b; margin-top:10px; }
+        footer { background:#fff; border-top:1px solid var(--line); padding:34px 0; color:#64748b; font-size:.9rem; }
+        .footer-inner { display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; } footer a { color:#475569; text-decoration:none; margin-right:16px; } footer a:hover { color:var(--ink); }
+        @media (max-width:900px){ .hero-grid,.pro-wrap,.download-card{grid-template-columns:1fr}.features{grid-template-columns:repeat(2,1fr)}.steps{grid-template-columns:1fr}.nav-links{display:none}.strip-inner{grid-template-columns:1fr} }
+        @media (max-width:560px){ .features{grid-template-columns:1fr}h1{font-size:2.4rem}.hero{padding-top:44px}.pro-wrap,.download-card{padding:26px} }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="container nav-inner">
+            <a class="brand" href="#top"><img src="areagrab_v2.png" alt="AreaGrab">AreaGrab</a>
+            <div class="nav-links">
+                <a href="#how">Как работает</a>
+                <a href="#features">Возможности</a>
+                <a href="#pro">Pro</a>
+                <a href="#faq">Вопросы</a>
+                <a href="index.html">EN</a>
+            </div>
+            <a class="btn small" href="#download">Скачать бесплатно</a>
+        </div>
+    </nav>
+
+    <header class="hero" id="top">
+        <div class="container hero-grid">
+            <div>
+                <span class="eyebrow">Бесплатно · v1.1 · Windows 10/11</span>
+                <h1>Скриншот.<br>Вставил. <span>Готово.</span></h1>
+                <p class="lead">Нажмите <kbd>PrtScr</kbd>, выделите область и отпустите мышь. Снимок сразу в буфере — и в выбранной папке, если вы этого хотите.</p>
+                <div class="cta-row">
+                    <a class="btn" href="#download">Скачать бесплатно</a>
+                    <a class="btn secondary" href="#pro">Что будет в Pro</a>
+                </div>
+                <div class="meta"><span>Без аккаунта</span><span>Без прав администратора</span><span>Работает офлайн</span></div>
+            </div>
+            <div class="hero-visual" aria-hidden="true">
+                <div class="fake-window"><div class="fake-bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div><div class="fake-content"><div class="fake-line w60"></div><div class="fake-line w80"></div><div class="fake-line w40"></div><div class="fake-line w80"></div><div class="fake-line w60"></div></div></div>
+                <div class="selection"></div><div class="selection-label">640 × 480</div>
+                <div class="fake-toast"><strong>Скопировано в буфер</strong><small>Сохранено: AreaGrab_2026-11-13.png</small></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="strip"><div class="container strip-inner">
+        <div class="strip-item"><div class="strip-icon">⌨️</div><div><b>PrtScr без конфликта</b><span>AreaGrab подавляет Snipping Tool, пока работает.</span></div></div>
+        <div class="strip-item"><div class="strip-icon">📋</div><div><b>Сначала буфер</b><span>Вставляйте в Telegram, Slack, почту или Word через Ctrl+V.</span></div></div>
+        <div class="strip-item"><div class="strip-icon">📁</div><div><b>Своя папка — или без файла</b><span>Выберите папку или выключите сохранение: останется только буфер.</span></div></div>
+    </div></div>
+
+    <section id="how"><div class="container">
+        <div class="section-head"><h2>Три действия. Без окна предпросмотра.</h2><p>AreaGrab сделал тестировщик, который делает десятки снимков в день. В основном сценарии нет редактора, нет «Сохранить как» и нет лишнего клика.</p></div>
+        <div class="steps">
+            <div class="step"><div class="step-num">1</div><h3>Нажмите PrtScr</h3><p>Экран затемняется. AreaGrab готов, даже если свёрнут в трей.</p></div>
+            <div class="step"><div class="step-num">2</div><h3>Выделите область</h3><p>Тяните левой кнопкой мыши. Выделение остаётся ярким, остальное затемняется. Esc — отмена.</p></div>
+            <div class="step"><div class="step-num">3</div><h3>Отпустите и вставьте</h3><p>Снимок уже в буфере. Небольшой тост покажет файл и папку. Нажмите Ctrl+V в любом приложении.</p></div>
+        </div>
+    </div></section>
+
+    <section id="features" style="padding-top:0"><div class="container">
+        <div class="section-head"><h2>Всё нужное. Ничего лишнего.</h2><p>Быстрые настройки по умолчанию и контроль, когда он нужен.</p></div>
+        <div class="features">
+            <div class="feature"><div class="ico">📋</div><h3>Сразу в буфер</h3><p>Копирует изображение автоматически — Ctrl+V работает сразу.</p></div>
+            <div class="feature"><div class="ico">📁</div><h3>Любая папка</h3><p>Выберите папку, откройте её из тоста или верните Pictures\Screenshots.</p></div>
+            <div class="feature"><div class="ico">🚫</div><h3>Без сохранения</h3><p>Снимите галочку «Сохранять в папку» — файл не создаётся, только буфер.</p></div>
+            <div class="feature"><div class="ico">⌨️</div><h3>Своя горячая клавиша</h3><p>PrtScr по умолчанию. Любое сочетание можно записать в настройках.</p></div>
+            <div class="feature"><div class="ico">🖥️</div><h3>Мультимонитор и DPI</h3><p>Per-monitor DPI awareness: выделение совпадает с пикселями при 125–200%.</p></div>
+            <div class="feature"><div class="ico">🕘</div><h3>Последние снимки</h3><p>10 последних снимков в памяти; можно скопировать снова из трея.</p></div>
+            <div class="feature"><div class="ico">🖼️</div><h3>PNG или JPG</h3><p>JPG для маленьких файлов, PNG — когда важен текст. Качество настраивается.</p></div>
+            <div class="feature"><div class="ico">🪶</div><h3>Без админа и лишнего</h3><p>Установка для пользователя, без UAC. Тихо живёт в трее.</p></div>
+        </div>
+    </div></section>
+
+    <section id="pro" style="padding-top:0"><div class="container">
+        <div class="pro-wrap">
+            <div>
+                <span class="eyebrow" style="background:#052e1a;color:#86efac">Pro в разработке</span>
+                <h2>Для тех, кто общается скриншотами весь день.</h2>
+                <p>AreaGrab Pro добавит то, что вокруг снимка: разметку, закрепление, распознавание текста, поиск по истории. Бесплатное ядро останется бесплатным.</p>
+                <ul class="pro-list">
+                    <li>Стрелки, рамки, текст, blur и нумерация шагов</li>
+                    <li>Закрепить снимок поверх других окон</li>
+                    <li>Офлайн-OCR — скопировать текст с картинки</li>
+                    <li>История снимков с поиском</li>
+                    <li>Свои хоткеи и копирование файла/пути</li>
+                </ul>
+            </div>
+            <div class="price-card">
+                <div class="tag">Пожизненная лицензия</div>
+                <div class="price">990 ₽ <small>разово</small></div>
+                <div class="price-note">Запуск: 690 ₽ для первых 200. 3 устройства. Год обновлений. Возврат 30 дней.</div>
+                <a class="btn" href="mailto:pro@areagrab.com?subject=AreaGrab%20Pro%3A%20хочу%20в%20лист%20ожидания&body=Привет!%20Хочу%20AreaGrab%20Pro.%20Мой%20сценарий%3A%20" style="width:100%">Записаться в лист ожидания</a>
+                <span class="waitlist">Сейчас платить не нужно. Напишем, когда Pro будет готов.</span>
+            </div>
+        </div>
+    </div></section>
+
+    <section id="faq" style="padding-top:0"><div class="container">
+        <div class="section-head"><h2>Вопросы</h2></div>
+        <details open><summary>PrtScr тоже открывает Snipping Tool?</summary><p>AreaGrab подавляет PrtScr, пока работает, поэтому Snipping Tool не должен открываться. Если открывается — в «Настройки → Захват» есть исправление настройки Windows и выбор другого сочетания.</p></details>
+        <details><summary>Нужны права администратора?</summary><p>Для обычной работы — нет. Установка для пользователя, без UAC. Чтобы снять окно, запущенное от администратора, AreaGrab нужно запустить от администратора — это ограничение Windows, а не требование.</p></details>
+        <details><summary>Куда сохраняются снимки?</summary><p>По умолчанию в <code>Pictures\Screenshots</code>. Папку можно выбрать в «Настройки → Сохранение». Тост после снимка показывает имя файла и папку.</p></details>
+        <details><summary>Как отключить создание файлов?</summary><p>Снимите галочку «Сохранять снимки в папку» в «Настройки → Сохранение». Снимок останется в буфере и в истории в памяти. Файл не создаётся.</p></details>
+        <details><summary>Почему SmartScreen предупреждает?</summary><p>AreaGrab 1.1 пока не подписан кодом, поэтому Windows может показать «Неизвестный издатель». SHA-256 установщика опубликован ниже. Подписанная сборка планируется.</p></details>
+        <details><summary>Будет ли Pro?</summary><p>Да, в разработке. Запишитесь в лист ожидания — получите цену запуска. Буфер, папка и режим «без сохранения» останутся бесплатными.</p></details>
+    </div></section>
+
+    <section id="download" style="padding-top:0"><div class="container">
+        <div class="download-card">
+            <div>
+                <h2>Скачать AreaGrab 1.1</h2>
+                <p>Windows 10/11 · x64 · без прав администратора.</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+                    <a class="btn" href="downloads/AreaGrab_Setup_1.1.0.exe">Скачать установщик (15,0 МБ)</a>
+                    <a class="btn secondary" href="downloads/AreaGrab_1.1.0_portable.zip">Portable ZIP (19,6 МБ)</a>
+                </div>
+                <div class="hash">SHA-256 установщика: DCF8BC4447D1B3AAA7A3A8827A3FB42D28B5FDC3E02EF4224C62DC7B13832CF5</div>
+                <div class="hash">SHA-256 portable ZIP: 81C7C4CFF3A6668AE1C6F59227600D64C03EED2F7A1DA0F473C7009D03F279B4</div>
+                <p class="fine">Если установщик пишет «Невозможно создать папку … Temp … Отказано в доступе», используйте portable ZIP: распакуйте в «Документы» или на рабочий стол и запустите <code>AreaGrab.exe</code>. Установщик, права администратора, меню «Пуск» и реестр не нужны. Либо скачайте <a href="downloads/Install-AreaGrab.cmd">Install-AreaGrab.cmd</a>, положите рядом с установщиком и запустите — он перенаправит временную папку.</p>
+                <p class="fine">Если Windows пишет «Неизвестный издатель», нажмите «Подробнее» → «Выполнить всё равно». Исходники и сборка доступны в проекте. Подписанный релиз планируется.</p>
+            </div>
+            <div>
+                <h3 style="margin-bottom:8px">Что нового в 1.1</h3>
+                <ul style="list-style:none;display:grid;gap:8px;color:#475569;font-size:.92rem">
+                    <li>✓ Автоматическое копирование в буфер</li>
+                    <li>✓ Своя папка и режим без сохранения</li>
+                    <li>✓ Настройки, меню трея, последние снимки</li>
+                    <li>✓ Нативный хук хоткея без админа</li>
+                    <li>✓ DPI-aware выделение на нескольких мониторах</li>
+                    <li>✓ Установка для пользователя, без UAC</li>
+                </ul>
+            </div>
+        </div>
+    </div></section>
+
+    <footer><div class="container footer-inner"><div>© 2026 AreaGrab · Сделано тестировщиком.</div><div><a href="privacy.html">Конфиденциальность</a><a href="terms.html">Условия</a><a href="mailto:admin@areagrab.com">Связаться</a><a href="index.html">English</a></div></div></footer>
+</body>
+</html>

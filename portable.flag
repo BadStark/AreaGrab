@@ -1,0 +1,2 @@
+AreaGrab portable mode.
+This file tells AreaGrab to keep settings, logs and the default screenshot folder in .\data next to AreaGrab.exe.

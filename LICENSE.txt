@@ -1,0 +1,14 @@
+AreaGrab licensing
+
+AreaGrab 1.0 was released under the MIT License. The original license text is
+preserved in LICENSE-v1.0-MIT.txt for that release.
+
+Starting with AreaGrab 1.1, the application is proprietary software distributed
+under the AreaGrab End User License Agreement (EULA). See LicenseAgreement.rtf
+(also shown by the installer) for the terms that apply to 1.1 and later.
+
+The MIT grant for AreaGrab 1.0 cannot be revoked for copies already distributed
+under it. It does not grant rights to use the AreaGrab name, icon, or the 1.1+
+Pro features.
+
+Third-party components are listed in THIRD_PARTY_NOTICES.txt.

@@ -1,0 +1,66 @@
+2026-11-16 14:01:10 INFO     root: AreaGrab 1.1.0 starting
+2026-11-16 14:01:11 INFO     areagrab.app: Starting AreaGrab 1.1.0
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing PngImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.PngImagePlugin: STREAM b'IHDR' 16 13
+2026-11-16 14:01:11 DEBUG    PIL.PngImagePlugin: STREAM b'IDAT' 41 36908
+2026-11-16 14:01:11 INFO     areagrab.hotkeys: Keyboard hook installed
+2026-11-16 14:01:11 INFO     areagrab.hotkeys: Registered hotkey 'print_screen'
+2026-11-16 14:01:11 DEBUG    areagrab.ui.tray: ChangeWindowMessageFilterEx failed; continuing
+Traceback (most recent call last):
+  File "areagrab\ui\tray.py", line 29, in safe
+  File "pystray\_util\win32.py", line 204, in _err
+PermissionError: [WinError 5] Отказано в доступе.
+2026-11-16 14:01:11 DEBUG    areagrab.ui.tray: ChangeWindowMessageFilterEx failed; continuing
+Traceback (most recent call last):
+  File "areagrab\ui\tray.py", line 29, in safe
+  File "pystray\_util\win32.py", line 204, in _err
+PermissionError: [WinError 5] Отказано в доступе.
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing AvifImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing BlpImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing BmpImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing BufrStubImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing CurImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing DcxImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing DdsImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing EpsImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing FitsImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing FliImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing FpxImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Image: failed to import FpxImagePlugin: No module named 'olefile'
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing FtexImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing GbrImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing GifImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing GribStubImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing Hdf5StubImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing IcnsImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing IcoImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing ImImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing ImtImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing IptcImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing JpegImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing Jpeg2KImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing McIdasImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing MicImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Image: failed to import MicImagePlugin: No module named 'olefile'
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing MpegImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing MpoImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing MspImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing PalmImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing PcdImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing PcxImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing PdfImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing PixarImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing PngImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing PpmImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing PsdImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing QoiImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing SgiImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing SpiderImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing SunImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing TgaImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing TiffImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing WebPImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing WmfImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing XbmImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing XpmImagePlugin
+2026-11-16 14:01:11 DEBUG    PIL.Image: Importing XVThumbImagePlugin
