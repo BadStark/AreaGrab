@@ -78,7 +78,7 @@ class TrayIcon:
     def _build_menu(self) -> pystray.Menu:
         items: list[pystray.MenuItem] = [
             pystray.MenuItem(
-                "Сделать снимок",
+                "Сделать снимок (PrtScr)",
                 lambda _icon, _item: self.app.post("capture"),
                 default=True,
             ),
@@ -94,22 +94,11 @@ class TrayIcon:
             pystray.Menu.SEPARATOR,
         ]
 
-        def make_recopy(index: int):
-            def recopy_action(_icon, _item):
-                self.app.post("recopy", index)
-
-            return recopy_action
-
-        recent_items: list[pystray.MenuItem] = []
-        history = self.app.history.items()
-        for index, item in enumerate(history[:5]):
-            label = item.timestamp.strftime("%H:%M:%S")
-            if item.width and item.height:
-                label += f"  {item.width}×{item.height}"
-            recent_items.append(pystray.MenuItem(label, make_recopy(index)))
-        if not recent_items:
-            recent_items.append(pystray.MenuItem("Пока пусто", None, enabled=False))
-        items.append(pystray.MenuItem("Последние снимки", pystray.Menu(*recent_items)))
+        items.append(pystray.MenuItem(
+            "Последние снимки…",
+            lambda _icon, _item: self.app.post("history"),
+            enabled=bool(self.app.history.items()),
+        ))
         items.extend(
             [
                 pystray.MenuItem(
@@ -120,7 +109,7 @@ class TrayIcon:
                     "Настройки…", lambda _icon, _item: self.app.post("settings")
                 ),
                 pystray.MenuItem(
-                    "Пауза горячей клавиши",
+                    "Приостановить работу AreaGrab",
                     lambda _icon, _item: self.app.post("toggle_pause"),
                     checked=lambda _item: self.app.hotkeys.paused,
                 ),
