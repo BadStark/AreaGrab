@@ -129,6 +129,12 @@ class SettingsWindow:
             foreground="#64748b",
         ).grid(row=1, column=1, sticky="w", pady=(0, 10))
 
+        ttk.Label(
+            tab,
+            text="Ctrl+PrtScr — повторить последнюю выделенную область.",
+            foreground="#475569",
+        ).grid(row=8, column=0, columnspan=2, sticky="w", pady=(12, 0))
+
         self._row(tab, 2, "Задержка перед захватом")
         delay = ttk.Combobox(
             tab,
@@ -294,12 +300,17 @@ class SettingsWindow:
         duration = ttk.Combobox(
             tab,
             textvariable=self.var_duration,
-            values=(2000, 3000, 4000, 6000),
+            values=(1500, 2200, 3000, 4000, 6000),
             state="readonly",
             width=8,
         )
         duration.grid(row=2, column=1, sticky="w")
         duration.bind("<<ComboboxSelected>>", lambda _e: self._save())
+        ttk.Label(
+            tab,
+            text="По умолчанию 2,2 секунды. При наведении мыши уведомление остаётся открытым.",
+            foreground="#64748b",
+        ).grid(row=3, column=0, columnspan=2, sticky="w", pady=(8, 0))
 
     def _build_about(self) -> None:
         tab = self._tab("О программе")
