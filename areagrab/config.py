@@ -9,6 +9,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from .i18n import LANGUAGES
 from .constants import CONFIG_DIR, IS_PORTABLE, SETTINGS_PATH
 from .win32_utils import default_screenshots_folder
 
@@ -89,7 +90,7 @@ class AdvancedSettings:
     autostart: bool = True
     start_minimized: bool = True
     check_updates: bool = True
-    language: str = "ru"
+    language: str = "auto"
     theme: str = "system"
     first_run_done: bool = False
 
@@ -184,7 +185,7 @@ class Settings:
         settings.advanced.autostart = _bool(adv.get("autostart"), True)
         settings.advanced.start_minimized = _bool(adv.get("start_minimized"), True)
         settings.advanced.check_updates = _bool(adv.get("check_updates"), True)
-        settings.advanced.language = _str(adv.get("language"), "ru")
+        settings.advanced.language = _str(adv.get("language"), "auto")
         settings.advanced.theme = _str(adv.get("theme"), "system")
         settings.advanced.first_run_done = _bool(adv.get("first_run_done"), False)
 
@@ -211,7 +212,7 @@ class Settings:
         self.clipboard.history_size = max(1, min(50, self.clipboard.history_size))
         self.notifications.duration_ms = max(1500, min(10000, self.notifications.duration_ms))
         self.advanced.language = (
-            self.advanced.language if self.advanced.language in ("ru", "en") else "ru"
+            self.advanced.language if self.advanced.language in LANGUAGES else "auto"
         )
         if self.advanced.theme not in ("system", "light", "dark"):
             self.advanced.theme = "system"
