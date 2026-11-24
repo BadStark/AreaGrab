@@ -128,11 +128,13 @@ class TrayIcon:
         page_size = 8
         start = page * page_size
         menu = []
-        if page > 0:
-            menu.append(pystray.MenuItem(
-                "← Более новые",
-                pystray.Menu(lambda: self._history_page(page - 1)),
-            ))
+        def open_shot(index: int):
+            def action(icon, item):
+                self.app.post("history_open", index)
+            return action
+
+        if not entries:
+            return (pystray.MenuItem("Нет снимков", None, enabled=False),)
         for index in range(start, min(start + page_size, len(entries))):
             shot = entries[index]
             label = (
@@ -141,7 +143,7 @@ class TrayIcon:
             )
             menu.append(pystray.MenuItem(
                 label,
-                lambda _icon, _item, i=index: self.app.post("history_open", i),
+                open_shot(index),
             ))
         if start + page_size < len(entries):
             menu.append(pystray.MenuItem(
