@@ -6,6 +6,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from .. import __version__
+from ..i18n import LANGUAGES
 from ..constants import APP_NAME, WEBSITE_URL
 from ..hotkeys import validate_hotkey
 from ..storage import target_folder
@@ -56,7 +57,7 @@ class SettingsWindow:
 
         self.top.after(50, self._load_values)
         for variable in (self.var_autostart, self.var_copy, self.var_clear_history,
-                         self.var_hotkey, self.var_save_enabled, self.var_folder,
+                         self.var_language, self.var_hotkey, self.var_save_enabled, self.var_folder,
                          self.var_format, self.var_quality, self.var_template,
                          self.var_toast, self.var_duration, self.var_thumbnail):
             variable.trace_add("write", lambda *_args: self._mark_dirty())
@@ -87,6 +88,9 @@ class SettingsWindow:
         self.var_autostart = tk.BooleanVar()
         self.var_copy = tk.BooleanVar()
         self.var_clear_history = tk.BooleanVar()
+        self.var_language = tk.StringVar()
+        ttk.Label(tab, text='Язык / Language').grid(row=3, column=0, sticky='w', pady=(16, 4))
+        ttk.Combobox(tab, textvariable=self.var_language, values=tuple(LANGUAGES.values()), state='readonly', width=25).grid(row=3, column=1, sticky='w', pady=(16, 4))
 
         ttk.Checkbutton(
             tab,
@@ -282,7 +286,9 @@ class SettingsWindow:
     # ------------------------------------------------------------- values
 
     def _load_values(self) -> None:
+        self._loading = True
         s = self.app.settings
+        self.var_language.set(LANGUAGES[s.advanced.language])
         self.var_autostart.set(s.advanced.autostart)
         self.var_copy.set(s.clipboard.copy_image)
         self.var_clear_history.set(s.clipboard.clear_on_exit)
@@ -310,7 +316,7 @@ class SettingsWindow:
 
     def _snapshot(self) -> tuple:
         return (
-            self.var_autostart.get(), self.var_copy.get(), self.var_clear_history.get(),
+            self.var_language.get(), self.var_autostart.get(), self.var_copy.get(), self.var_clear_history.get(),
             self.var_hotkey.get().strip().lower(), self.var_save_enabled.get(),
             self.var_folder.get().strip(), self.var_format.get(), int(self.var_quality.get()),
             self.var_template.get(), self.var_toast.get(), int(self.var_duration.get()),
@@ -340,6 +346,7 @@ class SettingsWindow:
 
 
         s = self.app.settings
+        s.advanced.language = next((key for key, label in LANGUAGES.items() if label == self.var_language.get()), 'auto')
         s.advanced.autostart = bool(self.var_autostart.get())
         s.clipboard.copy_image = bool(self.var_copy.get())
         s.clipboard.clear_on_exit = bool(self.var_clear_history.get())
