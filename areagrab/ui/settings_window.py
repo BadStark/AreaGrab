@@ -54,7 +54,12 @@ class SettingsWindow:
         self.apply_button = ttk.Button(bottom, text="Применить", command=self._save)
         self.apply_button.pack(side="right", padx=(0, 10))
 
-        self.top.after(50, self._load_values)\n        for variable in (self.var_autostart, self.var_copy, self.var_clear_history,\n                         self.var_hotkey, self.var_save_enabled, self.var_folder,\n                         self.var_format, self.var_quality, self.var_template,\n                         self.var_toast, self.var_duration, self.var_thumbnail):\n            variable.trace_add("write", lambda *_args: self._mark_dirty())
+        self.top.after(50, self._load_values)
+        for variable in (self.var_autostart, self.var_copy, self.var_clear_history,
+                         self.var_hotkey, self.var_save_enabled, self.var_folder,
+                         self.var_format, self.var_quality, self.var_template,
+                         self.var_toast, self.var_duration, self.var_thumbnail):
+            variable.trace_add("write", lambda *_args: self._mark_dirty())
         self.top.after(100, self._focus)
 
     def _focus(self) -> None:
@@ -282,8 +287,6 @@ class SettingsWindow:
         self.var_copy.set(s.clipboard.copy_image)
         self.var_clear_history.set(s.clipboard.clear_on_exit)
         self.var_hotkey.set(s.hotkeys.capture)
-        self.var_delay.set(s.capture.delay_seconds)
-        self.var_dim.set(s.capture.dim)
         self.var_save_enabled.set(s.save.enabled)
         self.var_folder.set(s.save.folder)
         self.var_format.set("PNG (чётче)" if s.save.format == "png" else "JPG (меньше)")
@@ -292,8 +295,10 @@ class SettingsWindow:
         self.var_toast.set(s.notifications.toast)
         self.var_duration.set(s.notifications.duration_ms)
         self.var_thumbnail.set(s.notifications.thumbnail)
-        self._dim_label()
         self._quality_label()
+        self._baseline = self._snapshot()
+        self._loading = False
+        self._update_apply()
 
     def _quality_label(self) -> None:
         try:
