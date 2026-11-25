@@ -124,6 +124,15 @@ class Settings:
         path = Path(path) if path else SETTINGS_PATH
         if not path.exists():
             settings = cls.default()
+            if not IS_PORTABLE:
+                try:
+                    import winreg
+                    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\AreaGrab') as key:
+                        language, _ = winreg.QueryValueEx(key, 'InitialLanguage')
+                    if language in LANGUAGES:
+                        settings.advanced.language = language
+                except OSError:
+                    pass
             settings.save_settings(path)
             return settings
         try:
