@@ -347,8 +347,8 @@ class AreaGrabApp:
             )
 
         if offer:
-            actions.append((self.tr("Попробовать редактор снимков"),
-                            lambda img=result.image: self.open_editor(img)))
+            actions.append((self.tr("Перейти на Pro"),
+                            lambda img=result.image: self.open_pro(img)))
 
         thumb = result.image if self.settings.notifications.thumbnail else None
         self.toasts.show(
@@ -611,8 +611,8 @@ class AreaGrabApp:
             self.toast(self.tr('Не удалось скопировать'), self.error_text(exc))
             return False
 
-    def open_pro(self) -> None:
-        show_plans(self)
+    def open_pro(self, image: Image.Image | None = None) -> None:
+        show_plans(self, image if image is not None else self.last_image)
 
     def open_editor(self, image: Image.Image) -> None:
         if self.settings.pro_preview.remaining:

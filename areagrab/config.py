@@ -204,7 +204,6 @@ class Settings:
         settings.pro_preview = ProPreview(
             captures=max(0, _int(preview.get("captures"), 0)),
             exports=max(0, min(TRIAL_EXPORTS, _int(preview.get("exports"), 0))),
-            show_offers=_bool(preview.get("show_offers"), True),
             last_offer=max(0, _int(preview.get("last_offer"), 0)),
         )
         lic = _dict(raw.get("license"))

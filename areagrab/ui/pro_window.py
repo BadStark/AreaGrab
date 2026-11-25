@@ -13,45 +13,79 @@ from .localization import capture_labels, update_labels
 log = logging.getLogger(__name__)
 
 
-def show_plans(app) -> None:
+def show_plans(app, image: Image.Image | None) -> None:
     existing = getattr(app, "_plans", None)
     if existing is not None and existing.winfo_exists():
+        existing.refresh(image)
         existing.lift()
         existing.focus_force()
         return
-    window = app._plans = tk.Toplevel(app.root)
-    window.resizable(False, False)
-    body = ttk.Frame(window, padding=24)
-    body.pack(fill="both", expand=True)
-    ttk.Label(body, text="AreaGrab Pro", font=("Segoe UI", 20, "bold")).pack(anchor="w")
-    ttk.Label(body, text="Редактор снимков", wraplength=360).pack(anchor="w", pady=(4, 16))
-    plan = tk.StringVar(window, "year")
-    for code, period, price in (("month", "В месяц", "$2.99 USD"), ("year", "В год", "$24.99 USD")):
-        row = ttk.Frame(body)
-        row.pack(fill="x", pady=4)
-        ttk.Radiobutton(row, text=period, variable=plan, value=code).pack(side="left")
-        ttk.Label(row, text=price).pack(side="right")
-    ttk.Label(body, text="Оплата недоступна в тестовой версии.", wraplength=360).pack(
-        anchor="w", pady=(16, 8)
-    )
-    offers = tk.BooleanVar(window, value=app.settings.pro_preview.show_offers)
+    app._plans = ProWindow(app, image)
 
-    def save_preference():
-        app.settings.pro_preview.show_offers = offers.get()
-        app.save_settings()
 
-    ttk.Checkbutton(body, text="Показывать предложения Pro", variable=offers,
-                    command=save_preference).pack(anchor="w")
-    ttk.Button(body, text="Закрыть", command=window.destroy).pack(anchor="e", pady=(16, 0))
-    labels = capture_labels(window)
+class ProWindow(tk.Toplevel):
+    def __init__(self, app, image: Image.Image | None) -> None:
+        super().__init__(app.root)
+        self.app = app
+        self.image = image
+        self.resizable(False, False)
+        self.bind("<Escape>", lambda _event: self.destroy())
 
-    def refresh(_event=None):
-        window.title(app.tr("Планы Pro"))
-        update_labels(labels, app.tr)
+        navy, ink, mint = "#12263b", "#183049", "#a4efd3"
+        hero = tk.Frame(self, background=navy, padx=24, pady=24)
+        hero.pack(fill="x")
+        tk.Label(hero, text="AreaGrab Pro", background=navy, foreground=mint,
+                 font=("Segoe UI", 10, "bold"), anchor="w").pack(fill="x")
+        tk.Label(hero, text="Редактируйте снимки без лимита", background=navy,
+                 foreground="white", font=("Segoe UI", 23, "bold"),
+                 wraplength=390, anchor="w", justify="left").pack(fill="x", pady=(6, 8))
+        tk.Label(hero, text="Стрелки, текст, выделение и скрытие данных в одном редакторе.",
+                 background=navy, foreground="#dde7f0", wraplength=390,
+                 anchor="w", justify="left").pack(fill="x")
 
-    window.bind("<<AreaGrabLanguageChanged>>", refresh)
-    refresh()
+        body = ttk.Frame(self, padding=24)
+        body.pack(fill="both", expand=True)
+        plans = tk.Frame(body)
+        plans.pack(fill="x")
+        plans.columnconfigure((0, 1), weight=1, uniform="plan")
+        for column, (period, price, detail, surface) in enumerate((
+            ("В месяц", "$2.99 USD", "Списание каждый месяц", "#edf2f7"),
+            ("В год", "$24.99 USD", "Экономия 30% за год", "#dff5ec"),
+        )):
+            card = tk.Frame(plans, background=surface, padx=14, pady=12)
+            card.grid(row=0, column=column, sticky="nsew", padx=(0, 6) if not column else (6, 0))
+            for label, size, weight in ((period, 10, "normal"), (price, 21, "bold"), (detail, 9, "normal")):
+                tk.Label(card, text=label, foreground=ink, background=surface,
+                         font=("Segoe UI", size, weight), wraplength=155,
+                         justify="left", anchor="w").pack(fill="x")
 
+        self.status = ttk.Label(body, wraplength=390, justify="left")
+        self.status.pack(anchor="w", pady=(16, 8))
+        self.try_editor = ttk.Button(body, text="Попробовать редактор снимков",
+                                     command=self._try_editor, padding=(12, 7))
+        self.try_editor.pack(anchor="w")
+        ttk.Separator(body).pack(fill="x", pady=(16, 10))
+        ttk.Label(body, text="Оплата недоступна в тестовой версии.", wraplength=390).pack(anchor="w")
+        self.labels = capture_labels(self)
+        self.bind("<<AreaGrabLanguageChanged>>", lambda _event: self.refresh(self.image))
+        self.bind("<<AreaGrabTrialChanged>>", lambda _event: self.refresh(self.image))
+        self.refresh(image)
+        self.try_editor.focus_set()
+
+    def refresh(self, image: Image.Image | None) -> None:
+        self.image = image
+        self.title(self.app.tr("Перейти на Pro"))
+        update_labels(self.labels, self.app.tr)
+        remaining = self.app.settings.pro_preview.remaining
+        self.status.configure(text=self.app.tr("Пробных экспортов осталось: {count}", count=remaining))
+        self.try_editor.state(["!disabled" if image is not None and remaining else "disabled"])
+        if image is None and remaining:
+            self.status.configure(text=self.app.tr("Сделайте снимок, чтобы попробовать редактор."))
+
+    def _try_editor(self) -> None:
+        if self.image is not None and self.app.settings.pro_preview.remaining:
+            self.app.open_editor(self.image)
+            self.destroy()
 
 class EditorWindow:
     def __init__(self, app, image: Image.Image) -> None:

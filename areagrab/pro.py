@@ -9,7 +9,6 @@ WEEK_SECONDS = 7 * 24 * 60 * 60
 class ProPreview:
     captures: int = 0
     exports: int = 0
-    show_offers: bool = True
     last_offer: int = 0
 
     @property
@@ -19,7 +18,7 @@ class ProPreview:
     def record_capture(self, now: int, *, can_show: bool) -> bool:
         self.captures += 1
         if (
-            can_show and self.show_offers and self.remaining
+            can_show
             and self.captures in (100, 200)
             and (not self.last_offer or now - self.last_offer >= WEEK_SECONDS)
         ):

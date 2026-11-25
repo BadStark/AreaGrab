@@ -111,7 +111,7 @@ class TrayIcon:
                     self.app.tr('Настройки…'), lambda _icon, _item: self.app.post("settings")
                 ),
                 pystray.MenuItem(
-                    self.app.tr("Планы Pro"), lambda _icon, _item: self.app.post("pro")
+                    self.app.tr("Перейти на Pro"), lambda _icon, _item: self.app.post("pro")
                 ),
                 pystray.MenuItem(
                     lambda _item: self.app.tr('Возобновить работу AreaGrab') if self.app.hotkeys.paused else self.app.tr('Приостановить работу AreaGrab'),
