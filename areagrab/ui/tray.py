@@ -7,6 +7,7 @@ from pathlib import Path
 import pystray
 from PIL import Image, ImageDraw
 
+from ..i18n import translate
 from ..constants import APP_NAME, resource_path
 
 log = logging.getLogger(__name__)
@@ -97,18 +98,18 @@ class TrayIcon:
         # Native Windows tray menus support nested text menus, not embedded thumbnails.
         # Paginate the RAM history so older entries remain reachable.
         items.append(pystray.MenuItem(
-            "Последние снимки",
+            translate("Последние снимки", self.app.settings.advanced.language),
             pystray.Menu(lambda: self._history_page(0)),
             enabled=lambda _item: bool(self.app.history.items()),
         ))
         items.extend(
             [
                 pystray.MenuItem(
-                    "Открыть папку", lambda _icon, _item: self.app.post("folder")
+                    translate("Открыть папку", self.app.settings.advanced.language), lambda _icon, _item: self.app.post("folder")
                 ),
                 pystray.Menu.SEPARATOR,
                 pystray.MenuItem(
-                    "Настройки…", lambda _icon, _item: self.app.post("settings")
+                    translate("Настройки…", self.app.settings.advanced.language), lambda _icon, _item: self.app.post("settings")
                 ),
                 pystray.MenuItem(
                     lambda _item: "Возобновить работу AreaGrab" if self.app.hotkeys.paused else "Приостановить работу AreaGrab",
@@ -116,9 +117,9 @@ class TrayIcon:
                 ),
                 pystray.Menu.SEPARATOR,
                 pystray.MenuItem(
-                    "О программе", lambda _icon, _item: self.app.post("about")
+                    translate("О программе", self.app.settings.advanced.language), lambda _icon, _item: self.app.post("about")
                 ),
-                pystray.MenuItem("Выход", lambda _icon, _item: self.app.post("quit")),
+                pystray.MenuItem(translate("Выход", self.app.settings.advanced.language), lambda _icon, _item: self.app.post("quit")),
             ]
         )
         return pystray.Menu(*items)
