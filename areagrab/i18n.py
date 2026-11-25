@@ -51,3 +51,23 @@ def translate(text, language="auto"):
     code = resolve_language(language)
     row = _ROWS.get(text)
     return row[_CODES.index(code)] if row else text
+
+_ROWS.update({
+"Сделать снимок": ["Сделать снимок","Take screenshot","截图","截圖","Capturar pantalla","Capturar tela","Screenshot erstellen","Faire une capture","スクリーンショットを撮る","스크린샷 찍기","Ekran görüntüsü al","Cattura schermata","Zrób zrzut ekranu"],
+"Весь экран": ["Весь экран","Full screen","全屏","全螢幕","Pantalla completa","Tela inteira","Vollbild","Plein écran","全画面","전체 화면","Tam ekran","Schermo intero","Cały ekran"],
+"Нет снимков": ["Нет снимков","No screenshots","无截图","無截圖","Sin capturas","Sem capturas","Keine Screenshots","Aucune capture","画像なし","스크린샷 없음","Görüntü yok","Nessuna cattura","Brak zrzutów"],
+"Более старые →": ["Более старые →","Older →","更早 →","更早 →","Anteriores →","Anteriores →","Ältere →","Plus anciennes →","以前の画像 →","이전 항목 →","Daha eski →","Precedenti →","Starsze →"],
+"Горячая клавиша": ["Горячая клавиша","Hotkey","快捷键","快速鍵","Atajo","Atalho","Tastenkürzel","Raccourci","ホットキー","단축키","Kısayol","Scorciatoia","Skrót klawiszowy"],
+"Папка": ["Папка","Folder","文件夹","資料夾","Carpeta","Pasta","Ordner","Dossier","フォルダー","폴더","Klasör","Cartella","Folder"],
+"Формат": ["Формат","Format","格式","格式","Formato","Formato","Format","Format","形式","형식","Biçim","Formato","Format"],
+"Открыть": ["Открыть","Open","打开","開啟","Abrir","Abrir","Öffnen","Ouvrir","開く","열기","Aç","Apri","Otwórz"],
+"Обзор…": ["Обзор…","Browse…","浏览…","瀏覽…","Examinar…","Procurar…","Durchsuchen…","Parcourir…","参照…","찾아보기…","Gözat…","Sfoglia…","Przeglądaj…"],
+"Сохранено": ["Сохранено","Saved","已保存","已儲存","Guardado","Salvo","Gespeichert","Enregistré","保存済み","저장됨","Kaydedildi","Salvato","Zapisano"],
+"Ошибка": ["Ошибка","Error","错误","錯誤","Error","Erro","Fehler","Erreur","エラー","오류","Hata","Errore","Błąd"],
+"Записать…": ["Записать…","Record…","录制…","錄製…","Grabar…","Gravar…","Aufzeichnen…","Enregistrer…","記録…","기록…","Kaydet…","Registra…","Nagraj…"],
+"Качество JPG": ["Качество JPG","JPG quality","JPG 质量","JPG 品質","Calidad JPG","Qualidade JPG","JPG-Qualität","Qualité JPG","JPG 品質","JPG 품질","JPG kalitesi","Qualità JPG","Jakość JPG"],
+"Шаблон имени": ["Шаблон имени","Filename template","文件名模板","檔名範本","Plantilla de nombre","Modelo de nome","Dateinamenvorlage","Modèle de nom","ファイル名テンプレート","파일 이름 템플릿","Dosya adı şablonu","Modello nome file","Szablon nazwy"],
+"Длительность": ["Длительность","Duration","持续时间","持續時間","Duración","Duração","Dauer","Durée","表示時間","표시 시간","Süre","Durata","Czas trwania"],
+"Показывать миниатюру": ["Показывать миниатюру","Show thumbnail","显示缩略图","顯示縮圖","Mostrar miniatura","Mostrar miniatura","Miniatur anzeigen","Afficher la miniature","サムネイルを表示","미리 보기 표시","Küçük resmi göster","Mostra miniatura","Pokaż miniaturę"],
+"Сохранять снимки в папку": ["Сохранять снимки в папку","Save screenshots to folder","保存截图到文件夹","儲存截圖至資料夾","Guardar capturas en carpeta","Salvar capturas na pasta","Screenshots im Ordner speichern","Enregistrer les captures dans un dossier","画像をフォルダーに保存","스크린샷을 폴더에 저장","Görüntüleri klasöre kaydet","Salva catture nella cartella","Zapisuj zrzuty w folderze"]
+})
