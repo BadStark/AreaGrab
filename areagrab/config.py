@@ -129,7 +129,7 @@ class Settings:
                     import winreg
                     with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\AreaGrab') as key:
                         language, _ = winreg.QueryValueEx(key, 'InitialLanguage')
-                    if language in LANGUAGES:
+                    if isinstance(language, str) and language in LANGUAGES:
                         settings.advanced.language = language
                 except (ImportError, OSError):
                     pass

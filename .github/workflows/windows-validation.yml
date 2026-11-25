@@ -100,7 +100,7 @@ jobs:
           Install-AreaGrab chinesesimplified $true
           if ((Get-ItemPropertyValue $registry InitialLanguage) -ne "zh-TW") { throw "Upgrade changed the initial locale" }
           if ((Get-FileHash $settings).Hash -ne $hash) { throw "Upgrade changed settings" }
-          if (Get-ItemPropertyValue $runKey AreaGrab -ErrorAction SilentlyContinue) {
+          if ((Test-Path $runKey) -and ((Get-Item $runKey).GetValueNames() -contains "AreaGrab")) {
             throw "Upgrade re-enabled autostart"
           }
       - name: Upload Windows installer
