@@ -1,0 +1,23 @@
+Contrato de licencia de usuario final (CLUF)
+
+AreaGrab 1.1 — Herramienta de captura instantánea de áreas de pantalla. © 2026 Orlov Andrew. Todos los derechos reservados.
+
+Este contrato de licencia de usuario final («Contrato») es un acuerdo vinculante entre tú («Usuario») y el desarrollador de AreaGrab («Licenciante»). Al instalar y usar AreaGrab 1.1, aceptas las condiciones de este Contrato.
+
+1. Concesión de la licencia. El Licenciante concede al Usuario una licencia gratuita, no exclusiva, intransferible y revocable para usar la versión gratuita de AreaGrab con fines personales. El uso comercial y las funciones Pro pueden requerir una licencia de pago aparte.
+
+2. Restricciones. El Usuario no podrá vender, alquilar, arrendar ni sublicenciar el software. Tampoco podrá modificarlo, descompilarlo, aplicarle ingeniería inversa ni crear obras derivadas, salvo donde la ley aplicable lo permita expresamente. El Usuario no podrá eliminar los avisos de derechos de autor ni otros avisos de propiedad.
+
+3. Datos locales y privacidad. AreaGrab almacena la configuración y las capturas en el equipo del Usuario. La versión gratuita 1.1 no sube capturas ni requiere conexión a internet. El Usuario controla la carpeta de capturas y puede desactivar el guardado local. Consulta la Política de privacidad.
+
+4. Titularidad. El software se concede bajo licencia y no se vende. Todos los derechos, títulos e intereses sobre el software siguen perteneciendo al Licenciante.
+
+5. Exclusión de garantías. El software se proporciona «tal cual», sin garantía de ningún tipo. En la máxima medida permitida por la ley, el Licenciante excluye todas las garantías expresas o implícitas, incluidas las de comerciabilidad e idoneidad para un fin determinado.
+
+6. Limitación de responsabilidad. El Licenciante no responderá en ningún caso por daños directos, indirectos, incidentales, especiales o consecuentes derivados del uso del software o de la imposibilidad de usarlo.
+
+7. Terminación. La licencia seguirá vigente hasta su terminación. Terminará automáticamente si incumples alguna de las disposiciones de este Contrato.
+
+8. Ley aplicable. Este Contrato se regirá por las leyes de la Federación de Rusia.
+
+Para consultas sobre este Contrato, escribe a admin@areagrab.com.

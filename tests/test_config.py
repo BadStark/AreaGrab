@@ -14,6 +14,7 @@ class SettingsTests(unittest.TestCase):
         settings = Settings.default()
         self.assertTrue(settings.save.enabled)
         self.assertEqual(settings.save.format, "jpg")
+        self.assertEqual(settings.notifications.duration_ms, 2200)
         self.assertEqual(settings.hotkeys.capture, "print_screen")
         self.assertFalse(settings.advanced.first_run_done)
 
@@ -53,6 +54,15 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.save.jpeg_quality, 100)
         self.assertLessEqual(settings.capture.dim, 0.8)
         self.assertGreaterEqual(settings.notifications.duration_ms, 1500)
+
+    def test_legacy_notification_duration_migrates(self) -> None:
+        legacy = Settings.from_dict({"schema": 1, "notifications": {"duration_ms": 4000}})
+        self.assertEqual(legacy.notifications.duration_ms, 2200)
+        self.assertEqual(legacy.schema, 2)
+        custom = Settings.from_dict({"schema": 1, "notifications": {"duration_ms": 3000}})
+        self.assertEqual(custom.notifications.duration_ms, 3000)
+        current = Settings.from_dict({"schema": 2, "notifications": {"duration_ms": 4000}})
+        self.assertEqual(current.notifications.duration_ms, 4000)
 
     def test_broken_json_falls_back(self) -> None:
         with temp_dir() as tmp:

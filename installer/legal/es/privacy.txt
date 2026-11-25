@@ -1,0 +1,17 @@
+Política de privacidad de AreaGrab
+
+Última actualización — 13.11.2026
+
+El desarrollador de AreaGrab («nosotros») se compromete a proteger tu privacidad. Esta política explica cómo gestionamos la información cuando utilizas nuestra aplicación de escritorio para Windows.
+
+1. Aplicación de funcionamiento local. AreaGrab es una aplicación de escritorio que funciona localmente. La versión gratuita 1.1 no necesita conexión a internet ni sube capturas o datos de uso.
+
+2. Almacenamiento local. La aplicación guarda la configuración en %APPDATA%\AreaGrab, las capturas en la carpeta que elijas y los registros de diagnóstico en %LOCALAPPDATA%\AreaGrab\logs. Si desactivas el guardado local, no se guarda ninguna captura. Los registros no incluyen píxeles de las capturas ni títulos de ventanas.
+
+3. Portapapeles. Al hacer una captura, AreaGrab coloca la imagen en el portapapeles de Windows para que puedas pegarla con Ctrl+V. El portapapeles se comparte con otras aplicaciones. Windows puede guardar la imagen en el historial del portapapeles si está activado. Evita capturar datos sensibles que no tengas intención de pegar.
+
+4. Información que no recopilamos. En la versión gratuita 1.1 no recopilamos, transmitimos ni tratamos información personal, capturas, contenido del portapapeles, métricas de uso, identificadores publicitarios ni cookies de seguimiento.
+
+5. Sitio web y compras. El sitio es estático y no instala cookies. El proveedor de alojamiento puede conservar registros estándar del servidor por motivos de seguridad y fiabilidad. Si en el futuro se compra una licencia de pago, el pago lo tramitará una plataforma de terceros o un proveedor de pagos conforme a su propia política de privacidad. Solo recibiremos la información necesaria para emitir y dar soporte a la licencia.
+
+6. Contacto. Para consultas, escribe a admin@areagrab.com.

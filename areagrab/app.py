@@ -5,10 +5,11 @@ import logging
 import queue
 import sys
 import threading
+import time
 import tkinter as tk
 from dataclasses import dataclass
 from pathlib import Path
-from tkinter import messagebox
+from tkinter import ttk
 
 from PIL import Image, ImageGrab
 
@@ -18,11 +19,15 @@ from . import storage
 from .config import Settings
 from .constants import APP_NAME, LOG_DIR, SETTINGS_PATH, WEBSITE_URL
 from .history import History
+from .installer_shutdown import listen_for_installer_shutdown
 from .hotkeys import HotkeyError, HotkeyManager
 from .logging_setup import setup_logging
 from .ui.first_run import FirstRunWindow
+from .i18n import resolve_language, translate
+from .ui.localization import LocalizedDialog, capture_labels, update_labels
 from .ui.overlay import SelectionOverlay
 from .ui.preview import PreviewWindow
+from .ui.pro_window import EditorWindow, show_plans
 from .ui.settings_window import SettingsWindow
 from .ui.toast import ToastManager
 from .ui.tray import TrayIcon
@@ -34,7 +39,6 @@ from .win32_utils import (
     open_path,
     open_url,
     set_autostart,
-    show_message,
     virtual_screen_rect,
 )
 
@@ -59,10 +63,15 @@ class AreaGrabApp:
         self.args = args
         self.settings = Settings.load()
         if args.reset:
+            previous = self.settings
             self.settings = Settings.default()
+            self.settings.pro_preview = previous.pro_preview
+            self.settings.license = previous.license
             self.settings.advanced.first_run_done = True
             self.settings.save_settings()
 
+        self._capture_stats_after: str | None = None
+        self._language = resolve_language(self.settings.advanced.language)
         self.history = History(self.settings.clipboard.history_size)
         self.last_rect: tuple[int, int, int, int] | None = None
         self.last_image: Image.Image | None = None
@@ -78,6 +87,7 @@ class AreaGrabApp:
             root,
             on_done=self._on_selection,
             on_cancel=self._on_cancel,
+            translate=self.tr,
         )
         self.toasts = ToastManager(
             root,
@@ -85,9 +95,20 @@ class AreaGrabApp:
             duration_ms=self.settings.notifications.duration_ms,
         )
         self.tray = TrayIcon(self)
-        self.hotkeys = HotkeyManager(lambda: self.post("capture"))
+        self.hotkeys = HotkeyManager(
+            lambda: self.post("capture"),
+            lambda: self.post("repeat"),
+        )
 
         self.root.report_callback_exception = self._tk_exception
+
+    def tr(self, text: str, **fields: object) -> str:
+        return translate(text, self._language, **fields)
+
+    def error_text(self, error: object = None) -> str:
+        if str(error) == "clipboard is busy":
+            return self.tr("Буфер обмена занят.")
+        return self.tr("Операция не выполнена. Подробности в логах AreaGrab.")
 
     # ------------------------------------------------------------- lifecycle
 
@@ -96,15 +117,15 @@ class AreaGrabApp:
         set_autostart(self.settings.advanced.autostart)
         self.overlay.set_dim(self.settings.capture.dim)
         self.tray.start()
+        listen_for_installer_shutdown(lambda: self.post("quit"))
         try:
             self.hotkeys.register(self.settings.hotkeys.capture)
             self._applied_hotkey = self.settings.hotkeys.capture
         except HotkeyError as exc:
             log.exception("Hotkey registration failed")
             self.toast(
-                "Горячая клавиша недоступна",
-                f"Не удалось зарегистрировать {self.settings.hotkeys.capture}: {exc}. "
-                "Откройте настройки и выберите другое сочетание.",
+                self.tr('Горячая клавиша недоступна'),
+                self.tr('Не удалось зарегистрировать {shortcut}: {error}. Откройте настройки и выберите другое сочетание.', shortcut=self.settings.hotkeys.capture, error=self.error_text(exc)),
             )
 
         self._poll_after = self.root.after(40, self._poll)
@@ -140,8 +161,18 @@ class AreaGrabApp:
             self.capture_fullscreen()
         elif kind == "settings":
             self.open_settings()
+        elif kind == "pro":
+            self.open_pro()
+        elif kind == "history_edit":
+            try:
+                self.open_editor(payload.image())
+            except Exception as exc:
+                log.exception("Could not open screenshot in the editor")
+                self.toast(self.tr("Не удалось открыть снимок"), self.error_text(exc))
         elif kind == "folder":
             self.open_folder()
+        elif kind == "history_open":
+            self.open_history_item(int(payload))
         elif kind == "toggle_pause":
             self.toggle_pause()
         elif kind == "about":
@@ -177,7 +208,7 @@ class AreaGrabApp:
             image = self.grab_screen()
         except Exception as exc:
             log.exception("Screen grab failed")
-            self.toast("Не удалось сделать снимок", str(exc))
+            self.toast(self.tr('Не удалось сделать снимок'), self.error_text(exc))
             return
         self.overlay.set_dim(self.settings.capture.dim)
         self.overlay.show(image)
@@ -209,7 +240,7 @@ class AreaGrabApp:
 
     def _on_cancel(self, reason: str) -> None:
         if reason == "too-small":
-            self.toast("Слишком маленькая область", "Выделите область побольше и попробуйте снова.")
+            self.toast(self.tr('Слишком маленькая область'), self.tr('Выделите область побольше и попробуйте снова.'))
 
     def _deliver(self, image: Image.Image, point: tuple[int, int]) -> None:
         # Freeze options at capture time; settings can change while the worker runs.
@@ -281,35 +312,43 @@ class AreaGrabApp:
                 log.exception("Could not add history item")
 
         self.last_image = result.image
-        if is_fullscreen_foreground():
-            return
-        if not self.settings.notifications.toast:
+        can_show = self.settings.notifications.toast and not is_fullscreen_foreground()
+        offer = False
+        if (result.clipboard_enabled and result.clipboard_ok) or result.path is not None:
+            offer = self.settings.pro_preview.record_capture(int(time.time()), can_show=can_show)
+            if self._capture_stats_after is None:
+                self._capture_stats_after = self.root.after(500, self._save_capture_stats)
+        if not can_show:
             return
 
         title, message = self._toast_text(result)
         actions: list[tuple[str, object]] = []
         if result.path is not None:
             path = result.path
-            actions.append(("Открыть", lambda p=path: self.open_path(p)))
-            actions.append(("Папка", self.open_folder))
+            actions.append((self.tr('Открыть'), lambda p=path: self.open_path(p)))
+            actions.append((self.tr('Папка'), self.open_folder))
         else:
             image = result.image
             actions.append(
                 (
-                    "Открыть",
+                    self.tr('Открыть'),
                     lambda img=image: self.show_preview(img, None),
                 )
             )
-            actions.append(("Настройки", self.open_settings))
+            actions.append((self.tr('Настройки'), self.open_settings))
         if not result.clipboard_ok and result.path is not None:
             image = result.image
             actions.insert(
                 0,
                 (
-                    "Повторить копирование",
+                    self.tr('Повторить копирование'),
                     lambda img=image: self.copy_image_to_clipboard(img),
                 ),
             )
+
+        if offer:
+            actions.append((self.tr("Перейти на Pro"),
+                            lambda img=result.image: self.open_pro(img)))
 
         thumb = result.image if self.settings.notifications.thumbnail else None
         self.toasts.show(
@@ -322,43 +361,42 @@ class AreaGrabApp:
 
     def _toast_text(self, result: DeliveryResult) -> tuple[str, str]:
         if result.clipboard_enabled and result.clipboard_ok and result.path is not None:
-            return "Скопировано и сохранено", f"{result.path.name}\n{result.path.parent}"
+            return self.tr('Скопировано и сохранено'), f"{result.path.name}\n{result.path.parent}"
         if result.clipboard_enabled and result.clipboard_ok and result.path is None:
             if result.save_error:
                 return (
-                    "Скопировано в буфер",
-                    f"Файл не сохранён: {result.save_error}",
+                    self.tr('Скопировано в буфер'),
+                    self.tr('Файл не сохранён: {error}', error=self.error_text(result.save_error)),
                 )
             return (
-                "Скопировано в буфер",
-                "Файл не сохранялся. Вставьте Ctrl+V в Telegram, письмо или чат.",
+                self.tr('Скопировано в буфер'),
+                self.tr('Файл не сохранялся. Вставьте Ctrl+V в Telegram, письмо или чат.'),
             )
         if not result.clipboard_enabled and result.path is not None:
             return (
-                "Сохранено",
-                f"Копирование в буфер выключено. Файл: {result.path.name}",
+                self.tr('Сохранено'),
+                self.tr('Копирование в буфер выключено. Файл: {file}', file=result.path.name),
             )
         if result.clipboard_enabled and not result.clipboard_ok and result.path is not None:
             return (
-                "Файл сохранён",
-                f"Буфер недоступен: {result.clipboard_error or 'другое приложение заняло буфер'}. "
-                f"Файл: {result.path.name}",
+                self.tr('Файл сохранён'),
+                self.tr('Буфер недоступен: {detail}. Файл: {file}', detail=self.error_text(result.clipboard_error), file=result.path.name),
             )
         if not result.clipboard_enabled and result.path is None:
             return (
-                "Снимок не сохранён",
-                "Копирование в буфер и сохранение в папку выключены. Включите хотя бы одно в настройках.",
+                self.tr('Снимок не сохранён'),
+                self.tr('Копирование в буфер и сохранение в папку выключены. Включите хотя бы одно в настройках.'),
             )
         return (
-            "Не удалось сохранить",
-            result.clipboard_error or result.save_error or "Неизвестная ошибка",
+            self.tr('Не удалось сохранить'),
+            self.error_text(result.clipboard_error or result.save_error),
         )
 
     def repeat_last(self) -> None:
         if self._quitting or self.overlay.active:
             return
         if not self.last_rect:
-            self.toast("Повтор недоступен", "Сначала сделайте хотя бы один снимок.")
+            self.toast(self.tr('Повтор недоступен'), self.tr('Сначала сделайте хотя бы один снимок.'))
             return
         try:
             image = self.grab_screen()
@@ -368,7 +406,7 @@ class AreaGrabApp:
             x2 = max(0, min(image.width, x2))
             y2 = max(0, min(image.height, y2))
             if x2 - x1 < 2 or y2 - y1 < 2:
-                self.toast("Область недоступна", "Конфигурация мониторов изменилась. Выделите область заново.")
+                self.toast(self.tr('Область недоступна'), self.tr('Конфигурация мониторов изменилась. Выделите область заново.'))
                 return
             crop = image.crop((x1, y1, x2, y2))
             point = (
@@ -378,7 +416,7 @@ class AreaGrabApp:
             self._deliver(crop, point)
         except Exception as exc:
             log.exception("Repeat capture failed")
-            self.toast("Ошибка", str(exc))
+            self.toast(self.tr('Ошибка'), self.error_text(exc))
 
     def capture_fullscreen(self) -> None:
         if self._quitting or self.overlay.active:
@@ -389,9 +427,25 @@ class AreaGrabApp:
             self._deliver(image, point)
         except Exception as exc:
             log.exception("Fullscreen capture failed")
-            self.toast("Ошибка", str(exc))
+            self.toast(self.tr('Ошибка'), self.error_text(exc))
 
     # ------------------------------------------------------------- settings
+
+    def open_history_item(self, index: int) -> None:
+        item = self.history.get(index)
+        if item is None:
+            self.toast(self.tr('Снимок недоступен'), self.tr('Он больше не находится в истории.'))
+            return
+        try:
+            image = item.image()
+            self.copy_image_to_clipboard(image)
+            if item.path is not None and item.path.is_file():
+                self.open_path(item.path)
+            else:
+                self.show_preview(image, None)
+        except Exception as exc:
+            log.exception("Could not open screenshot from tray history")
+            self.toast(self.tr('Не удалось открыть снимок'), self.error_text(exc))
 
     def open_settings(self) -> None:
         if self.settings_window is not None:
@@ -412,6 +466,14 @@ class AreaGrabApp:
 
     def settings_changed(self) -> None:
         self.settings.validate()
+        language = resolve_language(self.settings.advanced.language)
+        if language != self._language:
+            self._language = language
+            if self.toasts.current is not None:
+                self.toasts.current.close()
+            for child in self.root.winfo_children():
+                if isinstance(child, tk.Toplevel):
+                    child.event_generate("<<AreaGrabLanguageChanged>>", when="tail")
         self.toasts.configure(
             self.settings.notifications.toast,
             self.settings.notifications.duration_ms,
@@ -437,8 +499,8 @@ class AreaGrabApp:
         except HotkeyError as exc:
             log.exception("Could not register hotkey %s", target)
             self.toast(
-                "Горячая клавиша недоступна",
-                f"{target}: {exc}. Выберите другое сочетание в настройках.",
+                self.tr('Горячая клавиша недоступна'),
+                self.tr('{shortcut}: {error}. Выберите другое сочетание в настройках.', shortcut=target, error=self.error_text(exc)),
             )
 
     def pause_hotkeys(self) -> None:
@@ -450,7 +512,8 @@ class AreaGrabApp:
         try:
             self.hotkeys.resume(self._applied_hotkey or self.settings.hotkeys.capture)
         except HotkeyError as exc:
-            self.toast("Горячая клавиша недоступна", str(exc))
+            log.exception("Could not resume the hotkey")
+            self.toast(self.tr('Горячая клавиша недоступна'), self.error_text(exc))
         self.tray.refresh()
 
     def record_hotkey(self, callback) -> None:
@@ -469,10 +532,14 @@ class AreaGrabApp:
     def toggle_pause(self) -> None:
         if self.hotkeys.paused:
             self.resume_hotkeys()
-            self.toast("Горячая клавиша включена", self.settings.hotkeys.capture, duration_override=1800)
+            self.toast(self.tr('AreaGrab снова работает'), self.tr('Горячие клавиши включены.'), duration_override=1800)
         else:
             self.pause_hotkeys()
-            self.toast("Горячая клавиша на паузе", "Включить можно из меню трея.", duration_override=1800)
+            self.toast(self.tr('Работа AreaGrab приостановлена'), self.tr('Горячие клавиши отключены. Возобновить можно через меню.'), duration_override=1800)
+
+    def _save_capture_stats(self) -> None:
+        self._capture_stats_after = None
+        self.save_settings()
 
     def save_settings(self) -> None:
         try:
@@ -486,7 +553,7 @@ class AreaGrabApp:
         selected = filedialog.askdirectory(
             parent=self.root,
             initialdir=self.settings.save.folder,
-            title="Выберите папку для снимков",
+            title=self.tr('Выберите папку для снимков'),
         )
         return selected or None
 
@@ -496,21 +563,26 @@ class AreaGrabApp:
             storage.ensure_folder(folder)
             open_path(folder)
         except Exception as exc:
-            self.toast("Не удалось открыть папку", str(exc))
+            log.exception("Could not open the screenshot folder")
+            self.toast(self.tr('Не удалось открыть папку'), self.error_text(exc))
 
     def open_logs(self) -> None:
         try:
             LOG_DIR.mkdir(parents=True, exist_ok=True)
             open_path(LOG_DIR)
         except Exception as exc:
-            self.toast("Не удалось открыть логи", str(exc))
+            log.exception("Could not open the log folder")
+            self.toast(self.tr('Не удалось открыть логи'), self.error_text(exc))
 
     def reset_settings(self) -> None:
+        previous = self.settings
         self.settings = Settings.default()
+        self.settings.pro_preview = previous.pro_preview
+        self.settings.license = previous.license
         self.settings.advanced.first_run_done = True
         self._applied_hotkey = None
         self.settings_changed()
-        self.toast("Настройки сброшены", "Значения по умолчанию применены.")
+        self.toast(self.tr('Настройки сброшены'), self.tr('Значения по умолчанию применены.'))
 
     def clear_history(self) -> None:
         self.history.clear()
@@ -524,18 +596,36 @@ class AreaGrabApp:
             image = item.image()
             clipboard_service.copy_image(image, item.png)
             self.last_image = image
-            self.toast("Скопировано", "Снимок снова в буфере. Ctrl+V.")
+            self.toast(self.tr('Скопировано'), self.tr('Снимок снова в буфере. Ctrl+V.'))
         except Exception as exc:
             log.exception("Recopy failed")
-            self.toast("Не удалось скопировать", str(exc))
+            self.toast(self.tr('Не удалось скопировать'), self.error_text(exc))
 
-    def copy_image_to_clipboard(self, image: Image.Image) -> None:
+    def copy_image_to_clipboard(self, image: Image.Image) -> bool:
         try:
             clipboard_service.copy_image(image)
-            self.toast("Скопировано", "Снимок в буфере. Ctrl+V.")
+            self.toast(self.tr('Скопировано'), self.tr('Снимок в буфере. Ctrl+V.'))
+            return True
         except Exception as exc:
             log.exception("Clipboard copy failed")
-            self.toast("Не удалось скопировать", str(exc))
+            self.toast(self.tr('Не удалось скопировать'), self.error_text(exc))
+            return False
+
+    def open_pro(self, image: Image.Image | None = None) -> None:
+        show_plans(self, image if image is not None else self.last_image)
+
+    def open_editor(self, image: Image.Image) -> None:
+        if self.settings.pro_preview.remaining:
+            EditorWindow(self, image)
+        else:
+            self.open_pro()
+
+    def record_editor_export(self) -> None:
+        self.settings.pro_preview.exports += 1
+        self.save_settings()
+        for window in self.root.winfo_children():
+            if isinstance(window, tk.Toplevel):
+                window.event_generate("<<AreaGrabTrialChanged>>", when="tail")
 
     # ------------------------------------------------------------- preview
 
@@ -555,15 +645,56 @@ class AreaGrabApp:
         open_path(path)
 
     def show_about(self) -> None:
-        messagebox.showinfo(
-            f"О {APP_NAME}",
-            f"{APP_NAME} {__version__}\n\n"
-            "Снимок → Ctrl+V. Без лишних окон.\n\n"
-            f"Горячая клавиша: {self.settings.hotkeys.capture}\n"
-            f"Папка: {self.settings.save.folder}\n\n"
-            f"Сайт: {WEBSITE_URL}",
-            parent=self.root,
-        )
+        """Open a compact, readable About window from the tray."""
+        existing = getattr(self, "_about_window", None)
+        if existing is not None:
+            try:
+                if existing.winfo_exists():
+                    existing.lift()
+                    existing.focus_force()
+                    return
+            except tk.TclError:
+                pass
+        window = tk.Toplevel(self.root)
+        self._about_window = window
+        window.resizable(False, False)
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        frame = ttk.Frame(window, padding=22)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text="AreaGrab", font=("Segoe UI", 20, "bold")).pack(anchor="w")
+        version = ttk.Label(frame, foreground="#64748b")
+        version.pack(anchor="w", pady=(0, 16))
+        ttk.Label(
+            frame,
+            text='Быстрые скриншоты экрана для Windows.',
+            font=("Segoe UI", 11),
+        ).pack(anchor="w")
+        ttk.Label(
+            frame,
+            text='Выделяйте область, сохраняйте снимки в JPG или PNG, копируйте в буфер обмена и просматривайте недавние снимки.',
+            wraplength=405, justify="left",
+        ).pack(anchor="w", pady=(8, 16))
+        shortcuts = ttk.Label(frame, justify="left", wraplength=405)
+        shortcuts.pack(anchor="w")
+        actions = ttk.Frame(frame)
+        actions.pack(fill="x", pady=(20, 0))
+        ttk.Button(actions, text='Сайт программы', command=lambda: open_url(WEBSITE_URL)).pack(side="left")
+        ttk.Button(actions, text='Закрыть', command=window.destroy).pack(side="right")
+        labels = capture_labels(window)
+
+        def refresh(_event=None):
+            window.title(self.tr("О программе — AreaGrab"))
+            version.configure(text=self.tr("Версия {version}", version=__version__))
+            shortcut = self.settings.hotkeys.capture.replace("print_screen", "PrtScr")
+            shortcuts.configure(text=self.tr(
+                "Сделать снимок: {detail}\nПовторить область: Ctrl+PrtScr", detail=shortcut,
+            ))
+            update_labels(labels, self.tr)
+
+        window.bind("<<AreaGrabLanguageChanged>>", refresh)
+        refresh()
+        window.lift()
+        window.focus_force()
 
     def toast(
         self,
@@ -636,13 +767,22 @@ def main(argv: list[str] | None = None) -> None:
         print(f"{APP_NAME} {__version__}")
         return
 
-    if not acquire_single_instance():
-        show_message(APP_NAME, "AreaGrab уже запущен. Иконка приложения находится в системном трее.")
-        return
-
+    is_primary = acquire_single_instance()
     root = tk.Tk()
     root.withdraw()
     try:
+        if not is_primary:
+            language = resolve_language(Settings.load().advanced.language)
+
+            def tr(text):
+                return translate(text, language)
+
+            LocalizedDialog(
+                root, APP_NAME,
+                tr("AreaGrab уже запущен. Иконка приложения находится в системном трее."),
+                tr,
+            )
+            return
         app = AreaGrabApp(root, args)
         app.start()
         root.mainloop()

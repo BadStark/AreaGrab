@@ -1,0 +1,23 @@
+Umowa licencyjna użytkownika końcowego (EULA)
+
+AreaGrab 1.1 — Narzędzie do błyskawicznego przechwytywania obszaru ekranu. © 2026 Orlov Andrew. Wszelkie prawa zastrzeżone.
+
+Niniejsza umowa licencyjna użytkownika końcowego („Umowa”) jest wiążącą umową między Tobą („Użytkownik”) a twórcą oprogramowania AreaGrab („Licencjodawca”). Instalując AreaGrab 1.1 i korzystając z niego, akceptujesz warunki Umowy.
+
+1. Udzielenie licencji. Licencjodawca udziela Użytkownikowi bezpłatnej, niewyłącznej, niezbywalnej i odwołalnej licencji na używanie bezpłatnej wersji AreaGrab do celów osobistych. Użycie komercyjne i funkcje Pro mogą wymagać osobnej płatnej licencji.
+
+2. Ograniczenia. Użytkownik nie może sprzedawać, wynajmować, oddawać w dzierżawę ani udzielać sublicencji na oprogramowanie. Nie może go modyfikować, dekompilować, poddawać inżynierii wstecznej ani tworzyć utworów zależnych, chyba że prawo wyraźnie na to zezwala. Nie może usuwać informacji o prawach autorskich ani innych prawach własności.
+
+3. Dane lokalne i prywatność. AreaGrab przechowuje ustawienia i zrzuty ekranu lokalnie na komputerze Użytkownika. Bezpłatna wersja 1.1 nie przesyła zrzutów i nie wymaga połączenia z internetem. Użytkownik wybiera folder zrzutów i może wyłączyć lokalny zapis. Szczegóły znajdują się w Polityce prywatności.
+
+4. Własność. Oprogramowanie jest udostępniane na licencji i nie podlega sprzedaży. Wszelkie prawa, tytuły prawne i interesy związane z oprogramowaniem pozostają przy Licencjodawcy.
+
+5. Wyłączenie gwarancji. Oprogramowanie jest dostarczane w stanie, w jakim się znajduje, bez jakichkolwiek gwarancji. W najszerszym zakresie dopuszczalnym przez prawo Licencjodawca wyłącza wszelkie gwarancje wyraźne i dorozumiane, w tym dotyczące przydatności handlowej i do określonego celu.
+
+6. Ograniczenie odpowiedzialności. Licencjodawca w żadnym wypadku nie odpowiada za szkody bezpośrednie, pośrednie, przypadkowe, szczególne lub następcze wynikające z używania lub niemożności używania oprogramowania.
+
+7. Rozwiązanie. Licencja obowiązuje do jej rozwiązania. Rozwiązuje się automatycznie w razie naruszenia dowolnego postanowienia Umowy.
+
+8. Prawo właściwe. Umowa podlega prawu Federacji Rosyjskiej.
+
+Pytania dotyczące Umowy można kierować na adres admin@areagrab.com.

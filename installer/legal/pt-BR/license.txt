@@ -1,0 +1,23 @@
+Contrato de licença de usuário final (EULA)
+
+AreaGrab 1.1 — Ferramenta de captura instantânea de áreas da tela. © 2026 Orlov Andrew. Todos os direitos reservados.
+
+Este Contrato de Licença de Usuário Final («Contrato») é um acordo vinculante entre você («Usuário») e o desenvolvedor do software AreaGrab («Licenciante»). Ao instalar e usar o AreaGrab 1.1, você concorda com os termos deste Contrato.
+
+1. Concessão de licença. O Licenciante concede ao Usuário licença gratuita, não exclusiva, intransferível e revogável para usar a versão gratuita do AreaGrab para fins pessoais. O uso comercial e os recursos Pro podem exigir uma licença paga separada.
+
+2. Restrições. O Usuário não pode vender, alugar, arrendar ou sublicenciar o software. Também não pode modificá-lo, descompilá-lo, fazer engenharia reversa ou criar obras derivadas, salvo quando a lei aplicável permitir expressamente. O Usuário não pode remover avisos de direitos autorais ou outros avisos de propriedade do software.
+
+3. Dados locais e privacidade. O AreaGrab armazena configurações e capturas localmente no computador do Usuário. A versão gratuita 1.1 não envia capturas e não requer conexão à internet. O Usuário escolhe a pasta das capturas e pode desativar o salvamento local. Consulte a Política de Privacidade.
+
+4. Titularidade. O software é licenciado e não é vendido. Todos os direitos, títulos e interesses sobre o software permanecem com o Licenciante.
+
+5. Exclusão de garantias. O software é fornecido «no estado em que se encontra», sem garantias de qualquer natureza. No limite máximo permitido por lei, o Licenciante exclui todas as garantias expressas e implícitas, incluindo as de comercialização e adequação a uma finalidade específica.
+
+6. Limitação de responsabilidade. Em nenhuma circunstância o Licenciante será responsável por danos diretos, indiretos, incidentais, especiais ou consequenciais decorrentes do uso ou da impossibilidade de uso do software.
+
+7. Rescisão. A licença permanece em vigor até ser rescindida. A licença será rescindida automaticamente caso você descumpra qualquer disposição deste Contrato.
+
+8. Lei aplicável. Este Contrato é regido pelas leis da Federação Russa.
+
+Para dúvidas sobre este Contrato, escreva para admin@areagrab.com.

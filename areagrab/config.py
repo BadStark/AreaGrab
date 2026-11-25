@@ -9,6 +9,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from .i18n import LANGUAGES
+from .pro import ProPreview, TRIAL_EXPORTS
 from .constants import CONFIG_DIR, IS_PORTABLE, SETTINGS_PATH
 from .win32_utils import default_screenshots_folder
 
@@ -80,7 +82,7 @@ class CaptureSettings:
 @dataclass
 class NotificationSettings:
     toast: bool = True
-    duration_ms: int = 4000
+    duration_ms: int = 2200
     thumbnail: bool = True
 
 
@@ -89,20 +91,21 @@ class AdvancedSettings:
     autostart: bool = True
     start_minimized: bool = True
     check_updates: bool = True
-    language: str = "ru"
+    language: str = "auto"
     theme: str = "system"
     first_run_done: bool = False
 
 
 @dataclass
 class Settings:
-    schema: int = 1
+    schema: int = 2
     save: SaveSettings = field(default_factory=SaveSettings)
     clipboard: ClipboardSettings = field(default_factory=ClipboardSettings)
     hotkeys: HotkeySettings = field(default_factory=HotkeySettings)
     capture: CaptureSettings = field(default_factory=CaptureSettings)
     notifications: NotificationSettings = field(default_factory=NotificationSettings)
     advanced: AdvancedSettings = field(default_factory=AdvancedSettings)
+    pro_preview: ProPreview = field(default_factory=ProPreview)
     license: dict[str, Any] = field(default_factory=dict)
 
     # ------------------------------------------------------------ defaults
@@ -123,6 +126,15 @@ class Settings:
         path = Path(path) if path else SETTINGS_PATH
         if not path.exists():
             settings = cls.default()
+            if not IS_PORTABLE:
+                try:
+                    import winreg
+                    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\AreaGrab') as key:
+                        language, _ = winreg.QueryValueEx(key, 'InitialLanguage')
+                    if isinstance(language, str) and language in LANGUAGES:
+                        settings.advanced.language = language
+                except (ImportError, OSError):
+                    pass
             settings.save_settings(path)
             return settings
         try:
@@ -173,17 +185,27 @@ class Settings:
 
         notif = _dict(raw.get("notifications"))
         settings.notifications.toast = _bool(notif.get("toast"), True)
-        settings.notifications.duration_ms = _int(notif.get("duration_ms"), 4000)
+        settings.notifications.duration_ms = _int(notif.get("duration_ms"), 2200)
+        # Legacy default was 4000 ms. Upgrade it once; keep other custom values.
+        if settings.schema < 2 and settings.notifications.duration_ms == 4000:
+            settings.notifications.duration_ms = 2200
+        settings.schema = 2
         settings.notifications.thumbnail = _bool(notif.get("thumbnail"), True)
 
         adv = _dict(raw.get("advanced"))
         settings.advanced.autostart = _bool(adv.get("autostart"), True)
         settings.advanced.start_minimized = _bool(adv.get("start_minimized"), True)
         settings.advanced.check_updates = _bool(adv.get("check_updates"), True)
-        settings.advanced.language = _str(adv.get("language"), "ru")
+        settings.advanced.language = _str(adv.get("language"), "auto")
         settings.advanced.theme = _str(adv.get("theme"), "system")
         settings.advanced.first_run_done = _bool(adv.get("first_run_done"), False)
 
+        preview = _dict(raw.get("pro_preview"))
+        settings.pro_preview = ProPreview(
+            captures=max(0, _int(preview.get("captures"), 0)),
+            exports=max(0, min(TRIAL_EXPORTS, _int(preview.get("exports"), 0))),
+            last_offer=max(0, _int(preview.get("last_offer"), 0)),
+        )
         lic = _dict(raw.get("license"))
         settings.license = dict(lic)
 
@@ -207,7 +229,7 @@ class Settings:
         self.clipboard.history_size = max(1, min(50, self.clipboard.history_size))
         self.notifications.duration_ms = max(1500, min(10000, self.notifications.duration_ms))
         self.advanced.language = (
-            self.advanced.language if self.advanced.language in ("ru", "en") else "ru"
+            self.advanced.language if self.advanced.language in LANGUAGES else "auto"
         )
         if self.advanced.theme not in ("system", "light", "dark"):
             self.advanced.theme = "system"

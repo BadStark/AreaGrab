@@ -20,10 +20,12 @@ class SelectionOverlay:
         root: tk.Tk,
         on_done: Callable[[Image.Image, tuple[int, int, int, int]], None],
         on_cancel: Callable[[str], None],
+        translate: Callable[[str], str],
     ) -> None:
         self.root = root
         self.on_done = on_done
         self.on_cancel = on_cancel
+        self.translate = translate
         self.top: tk.Toplevel | None = None
         self.canvas: tk.Canvas | None = None
         self.image: Image.Image | None = None
@@ -81,17 +83,16 @@ class SelectionOverlay:
         self.hint_item = self.canvas.create_text(
             width // 2,
             28,
-            text="Выделите область  ·  Esc / правый клик — отмена",
+            text=self.translate('Выделите область  ·  Esc / правый клик — отмена'),
             fill="#f8fafc",
             font=("Segoe UI", 11),
             anchor=tk.N,
+            width=max(1, width - 40),
         )
         # Subtle background behind the hint.
+        left, top, right, bottom = self.canvas.bbox(self.hint_item)
         self.canvas.create_rectangle(
-            width // 2 - 190,
-            12,
-            width // 2 + 190,
-            46,
+            left - 12, top - 6, right + 12, bottom + 6,
             fill="#0f172a",
             outline="",
             stipple="gray50",

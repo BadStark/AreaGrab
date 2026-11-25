@@ -1,0 +1,23 @@
+Contratto di licenza con l’utente finale (EULA)
+
+AreaGrab 1.1 — Strumento di cattura istantanea di aree dello schermo. © 2026 Orlov Andrew. Tutti i diritti riservati.
+
+Il presente contratto di licenza con l’utente finale («Contratto») è un accordo vincolante tra te («Utente») e lo sviluppatore del software AreaGrab («Licenziante»). Installando e usando AreaGrab 1.1, accetti le condizioni del Contratto.
+
+1. Concessione della licenza. Il Licenziante concede all’Utente una licenza gratuita, non esclusiva, non trasferibile e revocabile per l’uso personale della versione gratuita di AreaGrab. L’uso commerciale e le funzioni Pro possono richiedere una licenza a pagamento separata.
+
+2. Restrizioni. L’Utente non può vendere, noleggiare, concedere in locazione o in sublicenza il software. Non può modificarlo, decompilarlo, sottoporlo a ingegneria inversa o creare opere derivate, salvo espressa autorizzazione della legge applicabile. Non può rimuovere le indicazioni sul diritto d’autore o altri avvisi di proprietà.
+
+3. Dati locali e privacy. AreaGrab memorizza impostazioni e schermate sul computer dell’Utente. La versione gratuita 1.1 non carica schermate online e non richiede una connessione a Internet. L’Utente controlla la cartella delle schermate e può disattivare il salvataggio locale. Per i dettagli, consulta l’Informativa sulla privacy.
+
+4. Titolarità. Il software è concesso in licenza e non viene venduto. Tutti i diritti, i titoli e gli interessi relativi al software restano al Licenziante.
+
+5. Esclusione di garanzia. Il software è fornito «così com’è», senza garanzie di alcun tipo. Nella massima misura consentita dalla legge, il Licenziante esclude tutte le garanzie espresse e implicite, comprese quelle di commerciabilità e idoneità a uno scopo specifico.
+
+6. Limitazione della responsabilità. Il Licenziante non risponde in alcun caso di danni diretti, indiretti, incidentali, speciali o consequenziali derivanti dall’uso o dall’impossibilità di utilizzare il software.
+
+7. Risoluzione. La licenza resta valida fino alla risoluzione. Si risolve automaticamente se non rispetti una qualsiasi disposizione del Contratto.
+
+8. Legge applicabile. Il Contratto è regolato dalle leggi della Federazione Russa.
+
+Per domande sul Contratto, scrivi a admin@areagrab.com.

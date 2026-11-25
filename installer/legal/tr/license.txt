@@ -1,0 +1,23 @@
+Son Kullanıcı Lisans Sözleşmesi (EULA)
+
+AreaGrab 1.1 — Anında ekran bölgesi yakalama aracı. © 2026 Orlov Andrew. Tüm hakları saklıdır.
+
+Bu Son Kullanıcı Lisans Sözleşmesi (“Sözleşme”), sizin (“Kullanıcı”) ile AreaGrab yazılımının geliştiricisi (“Lisans Veren”) arasında bağlayıcı bir sözleşmedir. AreaGrab 1.1’i yükleyip kullanarak bu Sözleşme’nin koşullarını kabul edersiniz.
+
+1. Lisans verilmesi. Lisans Veren, Kullanıcıya AreaGrab’ın ücretsiz sürümünü kişisel amaçlarla kullanması için ücretsiz, münhasır olmayan, devredilemez ve geri alınabilir bir lisans verir. Ticari kullanım ve Pro özellikleri için ayrı bir ücretli lisans gerekebilir.
+
+2. Kısıtlamalar. Kullanıcı yazılımı satamaz, kiralayamaz, finansal kiralamaya konu edemez veya alt lisans veremez. Yürürlükteki hukukun açıkça izin verdiği durumlar dışında yazılımı değiştiremez, kaynak koda dönüştüremez, tersine mühendislik uygulayamaz veya yazılımdan türetilmiş eser oluşturamaz. Telif hakkı ve diğer mülkiyet bildirimlerini kaldıramaz.
+
+3. Yerel veriler ve gizlilik. AreaGrab, ayarları ve ekran görüntülerini Kullanıcının bilgisayarında yerel olarak saklar. Ücretsiz 1.1 sürümü ekran görüntülerini yüklemez ve internet bağlantısı gerektirmez. Kullanıcı kayıt klasörünü belirler ve yerel kaydetmeyi kapatabilir. Ayrıntılar için Gizlilik Politikası’na bakın.
+
+4. Mülkiyet. Yazılım satılmaz, lisanslanır. Yazılım üzerindeki tüm haklar, mülkiyet ve menfaatler Lisans Verende kalır.
+
+5. Garanti reddi. Yazılım herhangi bir garanti olmaksızın “olduğu gibi” sağlanır. Lisans Veren, yasaların izin verdiği azami ölçüde, ticarete elverişlilik ve belirli bir amaca uygunluk dâhil tüm açık ve zımni garantileri reddeder.
+
+6. Sorumluluk sınırlaması. Lisans Veren, yazılımın kullanılmasından veya kullanılamamasından doğan doğrudan, dolaylı, arızi, özel veya sonuç niteliğindeki zararlardan hiçbir durumda sorumlu tutulamaz.
+
+7. Fesih. Lisans feshedilene kadar yürürlüktedir. Sözleşme’nin herhangi bir hükmüne uymadığınızda otomatik olarak sona erer.
+
+8. Uygulanacak hukuk. Bu Sözleşme Rusya Federasyonu yasalarına tabidir.
+
+Sözleşmeyle ilgili sorularınızı admin@areagrab.com adresine iletebilirsiniz.

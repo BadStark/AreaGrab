@@ -25,7 +25,7 @@ class Toast:
         message: str,
         thumbnail: Image.Image | None = None,
         actions: list[tuple[str, Callable[[], None]]] | None = None,
-        duration_ms: int = 4000,
+        duration_ms: int = 2200,
         point: tuple[int, int] | None = None,
     ) -> None:
         self.root = root
@@ -71,6 +71,7 @@ class Toast:
             bg=BG,
             fg=FG,
             font=("Segoe UI", 10, "bold"),
+            wraplength=290,
             anchor="w",
             justify="left",
         ).pack(fill="x")
@@ -104,7 +105,7 @@ class Toast:
                     pady=3,
                     font=("Segoe UI", 9),
                     cursor="hand2",
-                ).pack(side="left", padx=(0, 6))
+                ).pack(anchor="w", pady=(0, 3))
 
         close = tk.Label(
             outer,
@@ -169,7 +170,7 @@ class Toast:
 
 
 class ToastManager:
-    def __init__(self, root: tk.Tk, enabled: bool = True, duration_ms: int = 4000) -> None:
+    def __init__(self, root: tk.Tk, enabled: bool = True, duration_ms: int = 2200) -> None:
         self.root = root
         self.enabled = enabled
         self.duration_ms = duration_ms

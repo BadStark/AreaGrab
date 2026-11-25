@@ -78,60 +78,88 @@ class TrayIcon:
     def _build_menu(self) -> pystray.Menu:
         items: list[pystray.MenuItem] = [
             pystray.MenuItem(
-                "Сделать снимок",
+                lambda _item: self.app.tr('Сделать снимок') + " (" + ("PrtScr" if self.app.settings.hotkeys.capture == "print_screen" else self.app.settings.hotkeys.capture) + ")",
                 lambda _icon, _item: self.app.post("capture"),
                 default=True,
             ),
             pystray.MenuItem(
-                "Повторить последнюю область",
+                self.app.tr('Повторить последнюю область (Ctrl+PrtScr)'),
                 lambda _icon, _item: self.app.post("repeat"),
                 enabled=self.app.last_rect is not None,
             ),
             pystray.MenuItem(
-                "Весь экран",
+                self.app.tr('Весь экран'),
                 lambda _icon, _item: self.app.post("capture_full"),
             ),
             pystray.Menu.SEPARATOR,
         ]
 
-        def make_recopy(index: int):
-            def recopy_action(_icon, _item):
-                self.app.post("recopy", index)
-
-            return recopy_action
-
-        recent_items: list[pystray.MenuItem] = []
-        history = self.app.history.items()
-        for index, item in enumerate(history[:5]):
-            label = item.timestamp.strftime("%H:%M:%S")
-            if item.width and item.height:
-                label += f"  {item.width}×{item.height}"
-            recent_items.append(pystray.MenuItem(label, make_recopy(index)))
-        if not recent_items:
-            recent_items.append(pystray.MenuItem("Пока пусто", None, enabled=False))
-        items.append(pystray.MenuItem("Последние снимки", pystray.Menu(*recent_items)))
+        # Native Windows tray menus support nested text menus, not embedded thumbnails.
+        # Paginate the RAM history so older entries remain reachable.
+        items.append(pystray.MenuItem(
+            self.app.tr('Последние снимки'),
+            pystray.Menu(lambda: self._history_page(0)),
+            enabled=lambda _item: bool(self.app.history.items()),
+        ))
         items.extend(
             [
                 pystray.MenuItem(
-                    "Открыть папку", lambda _icon, _item: self.app.post("folder")
+                    self.app.tr('Открыть папку'), lambda _icon, _item: self.app.post("folder")
                 ),
                 pystray.Menu.SEPARATOR,
                 pystray.MenuItem(
-                    "Настройки…", lambda _icon, _item: self.app.post("settings")
+                    self.app.tr('Настройки…'), lambda _icon, _item: self.app.post("settings")
                 ),
                 pystray.MenuItem(
-                    "Пауза горячей клавиши",
+                    self.app.tr("Перейти на Pro"), lambda _icon, _item: self.app.post("pro")
+                ),
+                pystray.MenuItem(
+                    lambda _item: self.app.tr('Возобновить работу AreaGrab') if self.app.hotkeys.paused else self.app.tr('Приостановить работу AreaGrab'),
                     lambda _icon, _item: self.app.post("toggle_pause"),
-                    checked=lambda _item: self.app.hotkeys.paused,
                 ),
                 pystray.Menu.SEPARATOR,
                 pystray.MenuItem(
-                    "О программе", lambda _icon, _item: self.app.post("about")
+                    self.app.tr('О программе'), lambda _icon, _item: self.app.post("about")
                 ),
-                pystray.MenuItem("Выход", lambda _icon, _item: self.app.post("quit")),
+                pystray.MenuItem(self.app.tr('Выход'), lambda _icon, _item: self.app.post("quit")),
             ]
         )
         return pystray.Menu(*items)
+
+    def _history_page(self, page: int) -> tuple:
+        entries = self.app.history.items()
+        page_size = 8
+        start = page * page_size
+        menu = []
+        def open_shot(index: int):
+            def action(icon, item):
+                self.app.post("history_open", index)
+            return action
+
+        def edit_shot(shot):
+            def action(_icon, _item):
+                self.app.post("history_edit", shot)
+            return action
+
+        if not entries:
+            return (pystray.MenuItem(self.app.tr('Нет снимков'), None, enabled=False),)
+        for index in range(start, min(start + page_size, len(entries))):
+            shot = entries[index]
+            label = (
+                f"{shot.timestamp:%d.%m %H:%M:%S} · "
+                f"{shot.width}×{shot.height}"
+            )
+            menu.append(pystray.MenuItem(
+                label,
+                open_shot(index),
+            ))
+            menu.append(pystray.MenuItem(f"{self.app.tr('Редактировать')} · {label}", edit_shot(shot)))
+        if start + page_size < len(entries):
+            menu.append(pystray.MenuItem(
+                self.app.tr('Более старые →'),
+                pystray.Menu(lambda: self._history_page(page + 1)),
+            ))
+        return tuple(menu)
 
     def refresh(self) -> None:
         if self.icon is None:

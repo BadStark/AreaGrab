@@ -2,9 +2,9 @@ name: Windows validation
 
 on:
   push:
-    branches: [main, fix/pro-stabilization]
+    branches: [main, fix/pro-stabilization, feature/workflow-instructions]
   pull_request:
-    branches: [main]
+    branches: [main, fix/pro-stabilization]
 
 jobs:
   test-and-package:
@@ -18,6 +18,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt pyinstaller
+      - name: Compile all Python sources
+        run: python -m compileall -q areagrab tests AreaGrab.py
       - name: Unit tests
         run: python -m unittest discover -s tests -v
       - name: Build portable application
@@ -26,6 +28,21 @@ jobs:
         shell: pwsh
         run: |
           if (-not (Test-Path "dist_final/AreaGrab/AreaGrab.exe")) { throw "Missing AreaGrab.exe" }
+      - name: Runtime smoke test (imports and boot)
+        shell: pwsh
+        run: |
+          $exe = (Resolve-Path "dist_final/AreaGrab/AreaGrab.exe").Path
+          $proc = Start-Process -FilePath $exe -ArgumentList "--version" -PassThru
+          if (-not $proc.WaitForExit(30000)) {
+            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+            throw "Packaged AreaGrab startup timed out after 30 seconds"
+          }
+          if ($proc.ExitCode -ne 0) { throw "Packaged AreaGrab failed at startup (exit code $($proc.ExitCode))" }
+          $toc = Get-ChildItem -Path "build_v11" -Recurse -Filter "Analysis-00.toc" | Select-Object -First 1
+          if (-not $toc) { throw "PyInstaller analysis missing" }
+          if (-not (Select-String -Path $toc.FullName -Pattern "areagrab.ui.settings_window" -Quiet)) {
+            throw "settings_window was not bundled by PyInstaller"
+          }
       - name: Install Inno Setup
         shell: pwsh
         run: choco install innosetup --yes --no-progress
@@ -37,17 +54,55 @@ jobs:
           & $iscc areagrab_setup.iss
           if ($LASTEXITCODE -ne 0) { throw "Installer compilation failed" }
           if (-not (Test-Path "Output_v11/AreaGrab_Setup_1.1.0.exe")) { throw "Installer output missing" }
-      - name: Silent install smoke test
+      - name: Verify installer language handoff and upgrade
         shell: pwsh
         run: |
           $setup = (Resolve-Path "Output_v11/AreaGrab_Setup_1.1.0.exe").Path
-          $log = Join-Path $env:RUNNER_TEMP "areagrab-install.log"
-          $proc = Start-Process -FilePath $setup -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=$log") -Wait -PassThru
-          if ($proc.ExitCode -ne 0) {
-            if (Test-Path $log) { Get-Content $log -Tail 100 }
-            throw "Installer failed with exit code $($proc.ExitCode)"
+          $registry = "HKCU:\Software\AreaGrab"
+          $settingsDir = Join-Path $env:APPDATA "AreaGrab"
+          $settings = Join-Path $settingsDir "settings.json"
+          function Install-AreaGrab($language, $upgrade) {
+            $log = Join-Path $env:RUNNER_TEMP "areagrab-$language.log"
+            $arguments = @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LANG=$language", "/LOG=$log")
+            if ($upgrade) { $arguments += "/AREAGRABUPDATE=1" }
+            $proc = Start-Process -FilePath $setup -ArgumentList $arguments -Wait -PassThru
+            if ($proc.ExitCode -ne 0) {
+              if (Test-Path $log) { Get-Content $log -Tail 100 }
+              throw "Installer failed in $language (exit code $($proc.ExitCode))"
+            }
           }
+          Install-AreaGrab chinesetraditional $false
+          if ((Get-ItemPropertyValue $registry InitialLanguage) -ne "zh-TW") { throw "Incorrect initial locale" }
           if (-not (Test-Path "$env:LOCALAPPDATA/Programs/AreaGrab/AreaGrab.exe")) { throw "Installed executable missing" }
+
+          $installedExe = Join-Path $env:LOCALAPPDATA "Programs/AreaGrab/AreaGrab.exe"
+          $app = Start-Process -FilePath $installedExe -PassThru
+          try {
+            for ($i = 0; $i -lt 60 -and -not (Test-Path $settings) -and -not $app.HasExited; $i++) {
+              Start-Sleep -Milliseconds 250
+            }
+            if (-not (Test-Path $settings)) { throw "Installed app did not create settings" }
+            if ((Get-Content -Raw $settings | ConvertFrom-Json).advanced.language -ne "zh-TW") {
+              throw "Installed app did not import the installer language"
+            }
+          } finally {
+            if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force }
+            if (-not $app.WaitForExit(10000)) { throw "App did not stop after handoff smoke test" }
+          }
+
+          '{"advanced":{"language":"ja","autostart":false},"save":{"format":"png","jpeg_quality":84}}' |
+            Set-Content -Encoding utf8NoBOM $settings
+          $hash = (Get-FileHash $settings).Hash
+          $runKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+          if (Test-Path $runKey) {
+            Remove-ItemProperty $runKey AreaGrab -ErrorAction SilentlyContinue
+          }
+          Install-AreaGrab chinesesimplified $true
+          if ((Get-ItemPropertyValue $registry InitialLanguage) -ne "zh-TW") { throw "Upgrade changed the initial locale" }
+          if ((Get-FileHash $settings).Hash -ne $hash) { throw "Upgrade changed settings" }
+          if ((Test-Path $runKey) -and ((Get-Item $runKey).GetValueNames() -contains "AreaGrab")) {
+            throw "Upgrade re-enabled autostart"
+          }
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
         with:
