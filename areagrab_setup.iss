@@ -67,6 +67,7 @@ Name: "{group}\{cm:UninstallProgram,AreaGrab}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\AreaGrab"; Filename: "{app}\AreaGrab.exe"; Tasks: desktopicon
 
 [Registry]
+Root: HKCU; Subkey: "Software\AreaGrab"; ValueType: string; ValueName: "InitialLanguage"; ValueData: "{code:InitialLanguage}"; Flags: createvalueifdoesntexist uninsdeletevalue
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "AreaGrab"; ValueData: """{app}\AreaGrab.exe"" --autostart"; Flags: uninsdeletevalue; Tasks: autostart
 
 [Run]
@@ -74,6 +75,24 @@ Filename: "{app}\AreaGrab.exe"; Description: "{cm:LaunchProgram,AreaGrab}"; Flag
 
 
 [Code]
+function InitialLanguage(Param: String): String;
+var
+  Lang: String;
+begin
+  Lang := ActiveLanguage;
+  Result := 'en';
+  if Lang = 'russian' then Result := 'ru'
+  else if Lang = 'german' then Result := 'de'
+  else if Lang = 'french' then Result := 'fr'
+  else if Lang = 'spanish' then Result := 'es'
+  else if Lang = 'brazilianportuguese' then Result := 'pt-BR'
+  else if Lang = 'italian' then Result := 'it'
+  else if Lang = 'polish' then Result := 'pl'
+  else if Lang = 'japanese' then Result := 'ja'
+  else if Lang = 'korean' then Result := 'ko'
+  else if Lang = 'turkish' then Result := 'tr';
+end;
+
 function OpenEventW(DesiredAccess: Cardinal; InheritHandle: Boolean; Name: String): THandle;
   external 'OpenEventW@kernel32.dll stdcall';
 function SetEvent(EventHandle: THandle): Boolean;
