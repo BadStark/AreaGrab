@@ -490,6 +490,7 @@ class AreaGrabApp:
         try:
             self.hotkeys.resume(self._applied_hotkey or self.settings.hotkeys.capture)
         except HotkeyError as exc:
+            log.exception("Could not resume the hotkey")
             self.toast(self.tr('Горячая клавиша недоступна'), self.error_text(exc))
         self.tray.refresh()
 
@@ -536,6 +537,7 @@ class AreaGrabApp:
             storage.ensure_folder(folder)
             open_path(folder)
         except Exception as exc:
+            log.exception("Could not open the screenshot folder")
             self.toast(self.tr('Не удалось открыть папку'), self.error_text(exc))
 
     def open_logs(self) -> None:
@@ -543,6 +545,7 @@ class AreaGrabApp:
             LOG_DIR.mkdir(parents=True, exist_ok=True)
             open_path(LOG_DIR)
         except Exception as exc:
+            log.exception("Could not open the log folder")
             self.toast(self.tr('Не удалось открыть логи'), self.error_text(exc))
 
     def reset_settings(self) -> None:
