@@ -35,6 +35,8 @@ class PreviewWindow:
             ttk.Button(
                 bar, text='Открыть файл', command=lambda: app.open_path(path)
             ).pack(side="left")
+        ttk.Button(bar, text="Редактировать",
+                   command=lambda: app.open_editor(self.image)).pack(side="left", padx=8)
         ttk.Button(bar, text='Закрыть', command=self.top.destroy).pack(side="right")
 
         labels = capture_labels(self.top)

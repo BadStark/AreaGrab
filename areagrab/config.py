@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .i18n import LANGUAGES
+from .pro import ProPreview, TRIAL_EXPORTS
 from .constants import CONFIG_DIR, IS_PORTABLE, SETTINGS_PATH
 from .win32_utils import default_screenshots_folder
 
@@ -104,6 +105,7 @@ class Settings:
     capture: CaptureSettings = field(default_factory=CaptureSettings)
     notifications: NotificationSettings = field(default_factory=NotificationSettings)
     advanced: AdvancedSettings = field(default_factory=AdvancedSettings)
+    pro_preview: ProPreview = field(default_factory=ProPreview)
     license: dict[str, Any] = field(default_factory=dict)
 
     # ------------------------------------------------------------ defaults
@@ -198,6 +200,13 @@ class Settings:
         settings.advanced.theme = _str(adv.get("theme"), "system")
         settings.advanced.first_run_done = _bool(adv.get("first_run_done"), False)
 
+        preview = _dict(raw.get("pro_preview"))
+        settings.pro_preview = ProPreview(
+            captures=max(0, _int(preview.get("captures"), 0)),
+            exports=max(0, min(TRIAL_EXPORTS, _int(preview.get("exports"), 0))),
+            show_offers=_bool(preview.get("show_offers"), True),
+            last_offer=max(0, _int(preview.get("last_offer"), 0)),
+        )
         lic = _dict(raw.get("license"))
         settings.license = dict(lic)
 

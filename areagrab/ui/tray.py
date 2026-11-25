@@ -111,6 +111,9 @@ class TrayIcon:
                     self.app.tr('Настройки…'), lambda _icon, _item: self.app.post("settings")
                 ),
                 pystray.MenuItem(
+                    self.app.tr("Планы Pro"), lambda _icon, _item: self.app.post("pro")
+                ),
+                pystray.MenuItem(
                     lambda _item: self.app.tr('Возобновить работу AreaGrab') if self.app.hotkeys.paused else self.app.tr('Приостановить работу AreaGrab'),
                     lambda _icon, _item: self.app.post("toggle_pause"),
                 ),
@@ -133,6 +136,11 @@ class TrayIcon:
                 self.app.post("history_open", index)
             return action
 
+        def edit_shot(shot):
+            def action(_icon, _item):
+                self.app.post("history_edit", shot)
+            return action
+
         if not entries:
             return (pystray.MenuItem(self.app.tr('Нет снимков'), None, enabled=False),)
         for index in range(start, min(start + page_size, len(entries))):
@@ -145,6 +153,7 @@ class TrayIcon:
                 label,
                 open_shot(index),
             ))
+            menu.append(pystray.MenuItem(f"{self.app.tr('Редактировать')} · {label}", edit_shot(shot)))
         if start + page_size < len(entries):
             menu.append(pystray.MenuItem(
                 self.app.tr('Более старые →'),

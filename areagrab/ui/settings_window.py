@@ -43,6 +43,8 @@ class SettingsWindow:
         self._build_clipboard()
         self._build_notifications()
         self._build_about()
+        pro_tab = self._tab("Планы Pro")
+        ttk.Button(pro_tab, text="Планы Pro", command=self.app.open_pro).pack(anchor="w")
 
         bottom = ttk.Frame(self.top)
         bottom.pack(fill="x", padx=12, pady=10)

@@ -5,6 +5,7 @@ import logging
 import queue
 import sys
 import threading
+import time
 import tkinter as tk
 from dataclasses import dataclass
 from pathlib import Path
@@ -26,6 +27,7 @@ from .i18n import resolve_language, translate
 from .ui.localization import LocalizedDialog, capture_labels, update_labels
 from .ui.overlay import SelectionOverlay
 from .ui.preview import PreviewWindow
+from .ui.pro_window import EditorWindow, show_plans
 from .ui.settings_window import SettingsWindow
 from .ui.toast import ToastManager
 from .ui.tray import TrayIcon
@@ -61,10 +63,14 @@ class AreaGrabApp:
         self.args = args
         self.settings = Settings.load()
         if args.reset:
+            previous = self.settings
             self.settings = Settings.default()
+            self.settings.pro_preview = previous.pro_preview
+            self.settings.license = previous.license
             self.settings.advanced.first_run_done = True
             self.settings.save_settings()
 
+        self._capture_stats_after: str | None = None
         self._language = resolve_language(self.settings.advanced.language)
         self.history = History(self.settings.clipboard.history_size)
         self.last_rect: tuple[int, int, int, int] | None = None
@@ -155,6 +161,14 @@ class AreaGrabApp:
             self.capture_fullscreen()
         elif kind == "settings":
             self.open_settings()
+        elif kind == "pro":
+            self.open_pro()
+        elif kind == "history_edit":
+            try:
+                self.open_editor(payload.image())
+            except Exception as exc:
+                log.exception("Could not open screenshot in the editor")
+                self.toast(self.tr("Не удалось открыть снимок"), self.error_text(exc))
         elif kind == "folder":
             self.open_folder()
         elif kind == "history_open":
@@ -298,9 +312,13 @@ class AreaGrabApp:
                 log.exception("Could not add history item")
 
         self.last_image = result.image
-        if is_fullscreen_foreground():
-            return
-        if not self.settings.notifications.toast:
+        can_show = self.settings.notifications.toast and not is_fullscreen_foreground()
+        offer = False
+        if (result.clipboard_enabled and result.clipboard_ok) or result.path is not None:
+            offer = self.settings.pro_preview.record_capture(int(time.time()), can_show=can_show)
+            if self._capture_stats_after is None:
+                self._capture_stats_after = self.root.after(500, self._save_capture_stats)
+        if not can_show:
             return
 
         title, message = self._toast_text(result)
@@ -327,6 +345,10 @@ class AreaGrabApp:
                     lambda img=image: self.copy_image_to_clipboard(img),
                 ),
             )
+
+        if offer:
+            actions.append((self.tr("Попробовать редактор снимков"),
+                            lambda img=result.image: self.open_editor(img)))
 
         thumb = result.image if self.settings.notifications.thumbnail else None
         self.toasts.show(
@@ -515,6 +537,10 @@ class AreaGrabApp:
             self.pause_hotkeys()
             self.toast(self.tr('Работа AreaGrab приостановлена'), self.tr('Горячие клавиши отключены. Возобновить можно через меню.'), duration_override=1800)
 
+    def _save_capture_stats(self) -> None:
+        self._capture_stats_after = None
+        self.save_settings()
+
     def save_settings(self) -> None:
         try:
             self.settings.save_settings()
@@ -549,7 +575,10 @@ class AreaGrabApp:
             self.toast(self.tr('Не удалось открыть логи'), self.error_text(exc))
 
     def reset_settings(self) -> None:
+        previous = self.settings
         self.settings = Settings.default()
+        self.settings.pro_preview = previous.pro_preview
+        self.settings.license = previous.license
         self.settings.advanced.first_run_done = True
         self._applied_hotkey = None
         self.settings_changed()
@@ -572,13 +601,31 @@ class AreaGrabApp:
             log.exception("Recopy failed")
             self.toast(self.tr('Не удалось скопировать'), self.error_text(exc))
 
-    def copy_image_to_clipboard(self, image: Image.Image) -> None:
+    def copy_image_to_clipboard(self, image: Image.Image) -> bool:
         try:
             clipboard_service.copy_image(image)
             self.toast(self.tr('Скопировано'), self.tr('Снимок в буфере. Ctrl+V.'))
+            return True
         except Exception as exc:
             log.exception("Clipboard copy failed")
             self.toast(self.tr('Не удалось скопировать'), self.error_text(exc))
+            return False
+
+    def open_pro(self) -> None:
+        show_plans(self)
+
+    def open_editor(self, image: Image.Image) -> None:
+        if self.settings.pro_preview.remaining:
+            EditorWindow(self, image)
+        else:
+            self.open_pro()
+
+    def record_editor_export(self) -> None:
+        self.settings.pro_preview.exports += 1
+        self.save_settings()
+        for window in self.root.winfo_children():
+            if isinstance(window, tk.Toplevel):
+                window.event_generate("<<AreaGrabTrialChanged>>", when="tail")
 
     # ------------------------------------------------------------- preview
 
