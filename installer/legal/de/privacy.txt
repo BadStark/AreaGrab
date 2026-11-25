@@ -1,0 +1,17 @@
+Datenschutzerklärung für AreaGrab
+
+Zuletzt aktualisiert am 13.11.2026
+
+Der Entwickler von AreaGrab („wir“) verpflichtet sich zum Schutz Ihrer Privatsphäre. In dieser Erklärung beschreiben wir den Umgang mit Informationen bei der Nutzung unserer Windows-Desktopanwendung.
+
+1. Lokal arbeitende Anwendung. AreaGrab ist eine lokal arbeitende Desktopanwendung. Die kostenlose Version 1.1 benötigt keine Internetverbindung und lädt weder Screenshots noch Nutzungsdaten hoch.
+
+2. Lokale Speicherung. Die Anwendung speichert Einstellungen in %APPDATA%\AreaGrab, Screenshots im gewählten Ordner und Diagnoseprotokolle in %LOCALAPPDATA%\AreaGrab\logs. Ist das lokale Speichern deaktiviert, werden keine Screenshots gespeichert. Die Protokolle enthalten weder Bildpunkte aus Screenshots noch Fenstertitel.
+
+3. Zwischenablage. Bei einer Aufnahme legt AreaGrab das Bild in die Windows-Zwischenablage, damit Sie es mit Strg+V einfügen können. Andere Anwendungen können auf die Zwischenablage zugreifen. Ist der Windows-Zwischenablageverlauf aktiviert, kann er das Bild speichern. Erfassen Sie keine sensiblen Daten, die Sie nicht einfügen möchten.
+
+4. Informationen, die wir nicht erfassen. In der kostenlosen Version 1.1 erfassen, übermitteln oder verarbeiten wir keine personenbezogenen Informationen, Screenshots, Zwischenablageinhalte, Nutzungsanalysen, Werbekennungen oder Tracking-Cookies.
+
+5. Website und Käufe. Die Website ist statisch und setzt keine Cookies. Der Hostinganbieter kann für Sicherheit und Zuverlässigkeit übliche Serverprotokolle führen. Wird künftig eine kostenpflichtige Lizenz gekauft, verarbeitet ein externer Marktplatz oder Zahlungsdienstleister die Zahlung nach seiner eigenen Datenschutzerklärung. Wir erhalten nur die für Ausstellung und Betreuung der Lizenz erforderlichen Informationen.
+
+6. Kontakt. Fragen richten Sie bitte an admin@areagrab.com.

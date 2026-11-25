@@ -42,18 +42,18 @@ InfoBeforeFile=PrivacyPolicy.rtf
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
-Name: "chinesesimplified"; MessagesFile: "installer\languages\ChineseSimplified.isl"
-Name: "chinesetraditional"; MessagesFile: "installer\languages\ChineseTraditional.isl"
-Name: "german"; MessagesFile: "compiler:Languages\German.isl"
-Name: "french"; MessagesFile: "compiler:Languages\French.isl"
-Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
-Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
-Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
-Name: "polish"; MessagesFile: "compiler:Languages\Polish.isl"
-Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
-Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
-Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
+Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"; LicenseFile: "installer\legal\ru\license.txt"; InfoBeforeFile: "installer\legal\ru\privacy.txt"
+Name: "chinesesimplified"; MessagesFile: "installer\languages\ChineseSimplified.isl"; LicenseFile: "installer\legal\zh-CN\license.txt"; InfoBeforeFile: "installer\legal\zh-CN\privacy.txt"
+Name: "chinesetraditional"; MessagesFile: "installer\languages\ChineseTraditional.isl"; LicenseFile: "installer\legal\zh-TW\license.txt"; InfoBeforeFile: "installer\legal\zh-TW\privacy.txt"
+Name: "german"; MessagesFile: "compiler:Languages\German.isl"; LicenseFile: "installer\legal\de\license.txt"; InfoBeforeFile: "installer\legal\de\privacy.txt"
+Name: "french"; MessagesFile: "compiler:Languages\French.isl"; LicenseFile: "installer\legal\fr\license.txt"; InfoBeforeFile: "installer\legal\fr\privacy.txt"
+Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"; LicenseFile: "installer\legal\es\license.txt"; InfoBeforeFile: "installer\legal\es\privacy.txt"
+Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"; LicenseFile: "installer\legal\pt-BR\license.txt"; InfoBeforeFile: "installer\legal\pt-BR\privacy.txt"
+Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"; LicenseFile: "installer\legal\it\license.txt"; InfoBeforeFile: "installer\legal\it\privacy.txt"
+Name: "polish"; MessagesFile: "compiler:Languages\Polish.isl"; LicenseFile: "installer\legal\pl\license.txt"; InfoBeforeFile: "installer\legal\pl\privacy.txt"
+Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"; LicenseFile: "installer\legal\ja\license.txt"; InfoBeforeFile: "installer\legal\ja\privacy.txt"
+Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"; LicenseFile: "installer\legal\ko\license.txt"; InfoBeforeFile: "installer\legal\ko\privacy.txt"
+Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"; LicenseFile: "installer\legal\tr\license.txt"; InfoBeforeFile: "installer\legal\tr\privacy.txt"
 
 [CustomMessages]
 english.AdditionalOptions=Additional options:
@@ -302,8 +302,8 @@ begin
     Result := ExpandConstant('{param:AREAGRABUPDATE|0}') = '1';
     Exit;
   end;
-  Result := TaskDialogMsgBox('', Prompt, mbConfirmation, MB_YESNO,
-    [SetupMessage(msgButtonYes), SetupMessage(msgButtonNo)], 0) = IDYES;
+  Result := TaskDialogMsgBox('', Prompt, mbConfirmation, MB_YESNO, [
+    SetupMessage(msgButtonYes), SetupMessage(msgButtonNo)], 0) = IDYES;
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
@@ -330,8 +330,8 @@ begin
   end;
   while CheckForMutexes('AreaGrab_SingleInstance_v1') do
   begin
-    if TaskDialogMsgBox('', CustomMessage('RetryClose'), mbConfirmation, MB_RETRYCANCEL,
-      [SetupMessage(msgRetryCancelRetry), SetupMessage(msgButtonCancel)], 0) <> IDRETRY then
+    if TaskDialogMsgBox('', CustomMessage('RetryClose'), mbConfirmation, MB_RETRYCANCEL, [
+      SetupMessage(msgRetryCancelRetry), SetupMessage(msgButtonCancel)], 0) <> IDRETRY then
     begin
       Result := CustomMessage('UpgradeCancelled');
       Exit;

@@ -1,0 +1,17 @@
+Polityka prywatności AreaGrab
+
+Ostatnia aktualizacja — 13.11.2026
+
+Twórca AreaGrab („my”) zobowiązuje się chronić Twoją prywatność. Ta polityka wyjaśnia, jak postępujemy z informacjami podczas korzystania z naszej aplikacji dla systemu Windows.
+
+1. Działanie lokalne. AreaGrab to aplikacja działająca lokalnie. Bezpłatna wersja 1.1 nie wymaga połączenia z internetem i nie przesyła zrzutów ani danych o użytkowaniu.
+
+2. Dane przechowywane lokalnie. Aplikacja zapisuje ustawienia w %APPDATA%\AreaGrab, zrzuty w folderze wybranym przez użytkownika, a dzienniki diagnostyczne w %LOCALAPPDATA%\AreaGrab\logs. Po wyłączeniu lokalnego zapisu zrzuty nie są zapisywane. Dzienniki nie zawierają pikseli ze zrzutów ani tytułów okien.
+
+3. Schowek. Po wykonaniu zrzutu AreaGrab umieszcza obraz w schowku Windows, aby można było wkleić go skrótem Ctrl+V. Schowek jest współdzielony z innymi aplikacjami. Windows może zapisać obraz w historii schowka, jeśli ją włączono. Nie przechwytuj poufnych informacji, których nie zamierzasz wklejać.
+
+4. Informacje, których nie zbieramy. W bezpłatnej wersji 1.1 nie zbieramy, nie przekazujemy ani nie przetwarzamy danych osobowych, zrzutów, treści schowka, analiz użytkowania, identyfikatorów reklamowych ani śledzących plików cookie.
+
+5. Witryna i zakupy. Witryna jest statyczna i nie ustawia plików cookie. Dostawca hostingu może prowadzić standardowe dzienniki serwera dla bezpieczeństwa i niezawodności. Jeśli w przyszłości kupisz płatną licencję, płatność obsłuży zewnętrzna platforma sprzedażowa lub dostawca płatności według własnej polityki prywatności. Otrzymamy tylko informacje potrzebne do wydania i obsługi licencji.
+
+6. Kontakt. Pytania można przesyłać na adres admin@areagrab.com.

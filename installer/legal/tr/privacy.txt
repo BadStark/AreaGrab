@@ -1,0 +1,17 @@
+AreaGrab Gizlilik Politikası
+
+Son güncelleme — 13.11.2026
+
+AreaGrab geliştiricisi (“biz”), gizliliğinizi korumayı taahhüt eder. Bu politika, Windows masaüstü uygulamamızı kullanırken bilgileri nasıl işlediğimizi açıklar.
+
+1. Yerel çalışan uygulama. AreaGrab yerel çalışan bir masaüstü uygulamasıdır. Ücretsiz 1.1 sürümü internet bağlantısı gerektirmez ve ekran görüntülerini veya kullanım verilerini yüklemez.
+
+2. Yerel olarak saklanan veriler. Uygulama ayarları %APPDATA%\AreaGrab dizininde, ekran görüntülerini kullanıcının seçtiği klasörde ve tanılama günlüklerini %LOCALAPPDATA%\AreaGrab\logs dizininde saklar. Yerel kaydetme kapatıldığında ekran görüntüleri kaydedilmez. Günlükler görüntü pikselleri veya pencere başlıkları içermez.
+
+3. Pano. Bir ekran görüntüsü alındığında AreaGrab, Ctrl+V ile yapıştırılabilmesi için görüntüyü Windows panosuna koyar. Pano diğer uygulamalarla paylaşılır. Windows pano geçmişi açıksa görüntüyü geçmişe kaydedebilir. Yapıştırmayı düşünmediğiniz hassas bilgileri yakalamaktan kaçının.
+
+4. Toplamadığımız bilgiler. Ücretsiz 1.1 sürümünde kişisel bilgileri, ekran görüntülerini, pano içeriğini, kullanım analitiğini, reklam tanımlayıcılarını ve izleme çerezlerini toplamayız, iletmeyiz veya işlemeyiz.
+
+5. Web sitesi ve satın alma. Web sitesi statiktir ve çerez bırakmaz. Barındırma sağlayıcısı güvenlik ve güvenilirlik için standart sunucu günlüklerini tutabilir. Gelecekte ücretli bir lisans satın alınırsa ödemeyi üçüncü taraf bir pazar yeri veya ödeme sağlayıcısı kendi gizlilik politikasına göre işler. Yalnızca lisansın verilmesi ve desteklenmesi için gerekli bilgileri alırız.
+
+6. İletişim. Sorularınız için admin@areagrab.com adresine yazın.

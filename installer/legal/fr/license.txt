@@ -1,0 +1,23 @@
+Contrat de licence utilisateur final (CLUF)
+
+AreaGrab 1.1 — Outil de capture instantanée de zones de l’écran. © 2026 Orlov Andrew. Tous droits réservés.
+
+Ce contrat de licence utilisateur final (« Contrat ») est un accord contraignant entre vous (« Utilisateur ») et le développeur du logiciel AreaGrab (« Concédant »). En installant et en utilisant AreaGrab 1.1, vous acceptez les conditions de ce Contrat.
+
+1. Concession de licence. Le Concédant accorde à l’Utilisateur une licence gratuite, non exclusive, non cessible et révocable d’utilisation de la version gratuite d’AreaGrab à des fins personnelles. Une licence payante distincte peut être nécessaire pour l’usage commercial et les fonctions Pro.
+
+2. Restrictions. L’Utilisateur ne peut vendre, louer, donner à bail ni sous-licencier le logiciel. Il ne peut le modifier, le décompiler, procéder à son ingénierie inverse ni créer d’œuvres dérivées, sauf autorisation expresse de la loi applicable. Il ne peut supprimer les mentions de droit d’auteur ou de propriété.
+
+3. Données locales et confidentialité. AreaGrab conserve les paramètres et captures localement sur l’ordinateur de l’Utilisateur. La version gratuite 1.1 ne transmet pas les captures et ne nécessite pas de connexion Internet. L’Utilisateur choisit le dossier des captures et peut désactiver leur enregistrement local. Consultez la politique de confidentialité.
+
+4. Propriété. Le logiciel est concédé sous licence et n’est pas vendu. Tous les droits, titres et intérêts relatifs au logiciel restent acquis au Concédant.
+
+5. Exclusion de garantie. Le logiciel est fourni « en l’état », sans garantie d’aucune sorte. Dans toute la mesure permise par la loi, le Concédant exclut toute garantie expresse ou implicite, notamment les garanties de qualité marchande et d’adéquation à un usage particulier.
+
+6. Limitation de responsabilité. Le Concédant ne pourra en aucun cas être tenu responsable des dommages directs, indirects, accessoires, spéciaux ou consécutifs résultant de l’utilisation du logiciel ou de l’impossibilité de l’utiliser.
+
+7. Résiliation. La licence reste en vigueur jusqu’à sa résiliation. Elle prend fin automatiquement si vous enfreignez une disposition de ce Contrat.
+
+8. Droit applicable. Ce Contrat est régi par les lois de la Fédération de Russie.
+
+Pour toute question sur ce Contrat, écrivez à admin@areagrab.com.

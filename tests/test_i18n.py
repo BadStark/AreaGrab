@@ -94,6 +94,31 @@ class LocalizationTests(unittest.TestCase):
                 self.assertEqual(messages[f"{name}.{key}"].count("%1"), 1)
 
 
+    def test_installer_localizes_both_legal_pages(self):
+        source = (ROOT / "areagrab_setup.iss").read_text(encoding="utf-8-sig")
+        language_config = source.split("[Languages]", 1)[1].split("[CustomMessages]", 1)[0]
+        for name, code in INSTALLER_LANGUAGES.items():
+            if code == "en":
+                continue
+            with self.subTest(language=code):
+                line = next(line for line in language_config.splitlines() if line.startswith(f'Name: "{name}"'))
+                for directive, document, sections in (
+                    ("LicenseFile", "license", 8), ("InfoBeforeFile", "privacy", 6),
+                ):
+                    relative = f"installer/legal/{code}/{document}.txt"
+                    inno_path = relative.replace("/", "\\")
+                    self.assertIn(f'{directive}: "{inno_path}"', line)
+                    content = (ROOT / relative).read_text(encoding="utf-8")
+                    self.assertEqual(re.findall(r"^(\d+)\. ", content, re.MULTILINE),
+                                     [str(n) for n in range(1, sections + 1)])
+                    self.assertIn("AreaGrab", content)
+                    self.assertIn("admin@areagrab.com", content)
+                    self.assertNotIn("\ufffd", content)
+                    if document == "privacy":
+                        self.assertIn(r"%APPDATA%\AreaGrab", content)
+                        self.assertIn(r"%LOCALAPPDATA%\AreaGrab\logs", content)
+
+
 @unittest.skipUnless(sys.platform == "win32", "Windows registry and Tk UI")
 class WindowsLocalizationTests(unittest.TestCase):
     def test_installer_language_is_used_only_when_settings_do_not_exist(self):

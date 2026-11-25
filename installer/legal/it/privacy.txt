@@ -1,0 +1,17 @@
+Informativa sulla privacy di AreaGrab
+
+Ultimo aggiornamento — 13.11.2026
+
+Lo sviluppatore di AreaGrab («noi») si impegna a proteggere la tua privacy. Questa informativa spiega come gestiamo le informazioni quando usi la nostra applicazione desktop per Windows.
+
+1. Applicazione con funzionamento locale. AreaGrab è un’applicazione desktop che funziona in locale. La versione gratuita 1.1 non richiede Internet e non carica online schermate o dati di utilizzo.
+
+2. Archiviazione locale. L’applicazione salva le impostazioni in %APPDATA%\AreaGrab, le schermate nella cartella scelta dall’utente e i registri diagnostici in %LOCALAPPDATA%\AreaGrab\logs. Se disattivi il salvataggio locale, le schermate non vengono salvate. I registri non contengono pixel delle schermate né titoli delle finestre.
+
+3. Appunti. Quando acquisisci una schermata, AreaGrab copia l’immagine negli appunti di Windows per consentirti di incollarla con Ctrl+V. Gli appunti sono condivisi con altre applicazioni. Windows può conservare l’immagine nella cronologia degli appunti, se attiva. Evita di acquisire dati sensibili che non intendi incollare.
+
+4. Informazioni che non raccogliamo. Nella versione gratuita 1.1 non raccogliamo, trasmettiamo o trattiamo informazioni personali, schermate, contenuti degli appunti, dati di analisi dell’uso, identificatori pubblicitari o cookie di tracciamento.
+
+5. Sito web e acquisti. Il sito è statico e non imposta cookie. Il fornitore di hosting può conservare registri standard del server per la sicurezza e l’affidabilità. Se in futuro acquisterai una licenza a pagamento, il pagamento sarà gestito da un marketplace o da un prestatore di servizi di pagamento terzo secondo la sua informativa sulla privacy. Riceveremo solo le informazioni necessarie per emettere la licenza e fornire assistenza.
+
+6. Contatti. Per domande, scrivi a admin@areagrab.com.

@@ -1,0 +1,17 @@
+Politique de confidentialité d’AreaGrab
+
+Dernière mise à jour — 13.11.2026
+
+Le développeur d’AreaGrab (« nous ») s’engage à protéger votre vie privée. Cette politique explique comment nous traitons les informations lorsque vous utilisez notre application de bureau pour Windows.
+
+1. Fonctionnement local. AreaGrab est une application de bureau qui fonctionne localement. La version gratuite 1.1 ne nécessite aucune connexion Internet et ne transmet ni captures d’écran ni données d’utilisation.
+
+2. Stockage local. L’application conserve les paramètres dans %APPDATA%\AreaGrab, les captures dans le dossier choisi par l’utilisateur et les journaux de diagnostic dans %LOCALAPPDATA%\AreaGrab\logs. Si l’enregistrement local est désactivé, aucune capture n’est enregistrée. Les journaux ne contiennent ni pixels de captures ni titres de fenêtres.
+
+3. Presse-papiers. Lors d’une capture, AreaGrab place l’image dans le presse-papiers Windows pour permettre de la coller avec Ctrl+V. Le presse-papiers est partagé avec d’autres applications. Windows peut conserver l’image dans l’historique du presse-papiers s’il est activé. Évitez de capturer des données sensibles que vous n’avez pas l’intention de coller.
+
+4. Informations que nous ne collectons pas. Dans la version gratuite 1.1, nous ne collectons, ne transmettons et ne traitons ni données personnelles, ni captures, ni contenu du presse-papiers, ni données d’analyse d’utilisation, ni identifiants publicitaires, ni cookies de suivi.
+
+5. Site web et achats. Le site est statique et ne dépose pas de cookies. L’hébergeur peut conserver des journaux de serveur standard à des fins de sécurité et de fiabilité. En cas d’achat futur d’une licence payante, le paiement sera traité par une place de marché ou un prestataire de paiement tiers selon sa politique de confidentialité. Nous ne recevrons que les données nécessaires à l’émission et au suivi de la licence.
+
+6. Contact. Pour toute question, écrivez à admin@areagrab.com.

@@ -1,0 +1,23 @@
+Endbenutzer-Lizenzvereinbarung (EULA)
+
+AreaGrab 1.1 — Werkzeug für schnelle Bildschirmbereichsaufnahmen. © 2026 Orlov Andrew. Alle Rechte vorbehalten.
+
+Diese Endbenutzer-Lizenzvereinbarung („Vereinbarung“) ist eine verbindliche Vereinbarung zwischen Ihnen („Nutzer“) und dem Entwickler der AreaGrab-Software („Lizenzgeber“). Durch die Installation und Nutzung von AreaGrab 1.1 stimmen Sie den Bedingungen dieser Vereinbarung zu.
+
+1. Lizenzgewährung. Der Lizenzgeber räumt dem Nutzer eine kostenlose, nicht ausschließliche, nicht übertragbare und widerrufliche Lizenz zur persönlichen Nutzung der kostenlosen Version von AreaGrab ein. Für die kommerzielle Nutzung und Pro-Funktionen kann eine gesonderte kostenpflichtige Lizenz erforderlich sein.
+
+2. Einschränkungen. Der Nutzer darf die Software weder verkaufen noch vermieten, verleasen oder unterlizenzieren. Er darf sie weder ändern, dekompilieren, zurückentwickeln noch abgeleitete Werke erstellen, soweit dies nicht ausdrücklich gesetzlich erlaubt ist. Urheberrechts- und sonstige Schutzrechtshinweise dürfen nicht entfernt werden.
+
+3. Lokale Daten und Datenschutz. AreaGrab speichert Einstellungen und Screenshots lokal auf dem Computer des Nutzers. Die kostenlose Version 1.1 lädt keine Screenshots hoch und benötigt keine Internetverbindung. Der Nutzer bestimmt den Speicherordner und kann das lokale Speichern deaktivieren. Einzelheiten finden Sie in der Datenschutzerklärung.
+
+4. Rechteinhaberschaft. Die Software wird lizenziert und nicht verkauft. Alle Rechte, Eigentumstitel und Ansprüche an der Software verbleiben beim Lizenzgeber.
+
+5. Gewährleistungsausschluss. Die Software wird im vorliegenden Zustand ohne Gewährleistung jeglicher Art bereitgestellt. Soweit gesetzlich zulässig, schließt der Lizenzgeber alle ausdrücklichen und stillschweigenden Gewährleistungen aus, insbesondere die Marktgängigkeit und die Eignung für einen bestimmten Zweck.
+
+6. Haftungsbeschränkung. Der Lizenzgeber haftet unter keinen Umständen für direkte, indirekte, beiläufige, besondere oder Folgeschäden aus der Nutzung oder der Unmöglichkeit der Nutzung der Software.
+
+7. Beendigung. Diese Lizenz gilt bis zu ihrer Beendigung. Sie endet automatisch, wenn Sie gegen eine Bestimmung dieser Vereinbarung verstoßen.
+
+8. Anwendbares Recht. Diese Vereinbarung unterliegt dem Recht der Russischen Föderation.
+
+Fragen zu dieser Vereinbarung richten Sie bitte an admin@areagrab.com.
