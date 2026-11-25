@@ -79,7 +79,7 @@ class TrayIcon:
     def _build_menu(self) -> pystray.Menu:
         items: list[pystray.MenuItem] = [
             pystray.MenuItem(
-                lambda _item: "Сделать снимок (" + ("PrtScr" if self.app.settings.hotkeys.capture == "print_screen" else self.app.settings.hotkeys.capture) + ")",
+                lambda _item: translate("Сделать снимок", self.app.settings.advanced.language) + " (" + ("PrtScr" if self.app.settings.hotkeys.capture == "print_screen" else self.app.settings.hotkeys.capture) + ")",
                 lambda _icon, _item: self.app.post("capture"),
                 default=True,
             ),
@@ -89,7 +89,7 @@ class TrayIcon:
                 enabled=self.app.last_rect is not None,
             ),
             pystray.MenuItem(
-                "Весь экран",
+                translate("Весь экран", self.app.settings.advanced.language),
                 lambda _icon, _item: self.app.post("capture_full"),
             ),
             pystray.Menu.SEPARATOR,
@@ -135,7 +135,7 @@ class TrayIcon:
             return action
 
         if not entries:
-            return (pystray.MenuItem("Нет снимков", None, enabled=False),)
+            return (pystray.MenuItem(translate("Нет снимков", self.app.settings.advanced.language), None, enabled=False),)
         for index in range(start, min(start + page_size, len(entries))):
             shot = entries[index]
             label = (
@@ -148,7 +148,7 @@ class TrayIcon:
             ))
         if start + page_size < len(entries):
             menu.append(pystray.MenuItem(
-                "Более старые →",
+                translate("Более старые →", self.app.settings.advanced.language),
                 pystray.Menu(lambda: self._history_page(page + 1)),
             ))
         return tuple(menu)
