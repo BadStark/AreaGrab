@@ -291,8 +291,8 @@ begin
   Prompt := CustomMessage('UpgradeDetected') + #13#10 + #13#10;
   if ExistingVersion <> '' then
     Prompt := Prompt + FmtMessage(CustomMessage('InstalledVersion'), [ExistingVersion]) + #13#10;
-  Prompt := Prompt + FmtMessage(CustomMessage('IncomingVersion'), ['{#MyAppVersion}']) +
-    #13#10 + #13#10 + CustomMessage('ConfirmUpgrade');
+  Prompt := Prompt + FmtMessage(CustomMessage('IncomingVersion'), ['{#MyAppVersion}']) + #13#10 + #13#10 +
+    CustomMessage('ConfirmUpgrade');
   if Running then
     Prompt := Prompt + #13#10 + #13#10 + CustomMessage('CloseWarning');
 
