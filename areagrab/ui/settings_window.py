@@ -6,7 +6,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 from .. import __version__
-from ..i18n import LANGUAGES
+from ..i18n import LANGUAGES, translate
 from ..constants import APP_NAME, WEBSITE_URL
 from ..hotkeys import validate_hotkey
 from ..storage import target_folder
@@ -24,7 +24,7 @@ class SettingsWindow:
         self.app = app
         self.root = app.root
         self.top = tk.Toplevel(self.root)
-        self.top.title(f"{APP_NAME} — настройки")
+        self.top.title(f"{APP_NAME} — {self._tr('Настройки')}")
         self.top.geometry("760x560")
         self.top.minsize(700, 500)
         self.top.protocol("WM_DELETE_WINDOW", self.close)
@@ -51,8 +51,9 @@ class SettingsWindow:
         bottom.pack(fill="x", padx=12, pady=10)
         self.saved_label = ttk.Label(bottom, text="", foreground="#16a34a")
         self.saved_label.pack(side="left")
-        ttk.Button(bottom, text="Закрыть", command=self.close).pack(side="right")
-        self.apply_button = ttk.Button(bottom, text="Применить", command=self._save)
+        self.close_button = ttk.Button(bottom, text=self._tr("Закрыть"), command=self.close)
+        self.close_button.pack(side="right")
+        self.apply_button = ttk.Button(bottom, text=self._tr("Применить"), command=self._save)
         self.apply_button.pack(side="right", padx=(0, 10))
 
         self.top.after(50, self._load_values)
@@ -62,6 +63,9 @@ class SettingsWindow:
                          self.var_toast, self.var_duration, self.var_thumbnail):
             variable.trace_add("write", lambda *_args: self._mark_dirty())
         self.top.after(100, self._focus)
+
+    def _tr(self, text):
+        return translate(text, self.app.settings.advanced.language)
 
     def _focus(self) -> None:
         try:
@@ -74,7 +78,7 @@ class SettingsWindow:
 
     def _tab(self, title: str) -> ttk.Frame:
         frame = ttk.Frame(self.notebook, padding=16)
-        self.notebook.add(frame, text=title)
+        self.notebook.add(frame, text=self._tr(title))
         return frame
 
     @staticmethod
@@ -89,7 +93,8 @@ class SettingsWindow:
         self.var_copy = tk.BooleanVar()
         self.var_clear_history = tk.BooleanVar()
         self.var_language = tk.StringVar()
-        ttk.Label(tab, text='Язык / Language').grid(row=3, column=0, sticky='w', pady=(16, 4))
+        self.language_label = ttk.Label(tab, text=self._tr("Язык / Language"))
+        self.language_label.grid(row=3, column=0, sticky='w', pady=(16, 4))
         ttk.Combobox(tab, textvariable=self.var_language, values=tuple(LANGUAGES.values()), state='readonly', width=25).grid(row=3, column=1, sticky='w', pady=(16, 4))
 
         ttk.Checkbutton(
@@ -346,6 +351,7 @@ class SettingsWindow:
 
 
         s = self.app.settings
+        old_language = s.advanced.language
         s.advanced.language = next((key for key, label in LANGUAGES.items() if label == self.var_language.get()), 'auto')
         s.advanced.autostart = bool(self.var_autostart.get())
         s.clipboard.copy_image = bool(self.var_copy.get())
@@ -367,6 +373,13 @@ class SettingsWindow:
         self._baseline = self._snapshot()
         self._update_apply()
         self._flash_saved()
+        if old_language != s.advanced.language:
+            self.top.title(f"{APP_NAME} — {self._tr('Настройки')}")
+            for tab, label in zip(self.notebook.tabs(), ("Общие", "Захват", "Сохранение", "Буфер", "Уведомления", "О программе")):
+                self.notebook.tab(tab, text=self._tr(label))
+            self.apply_button.configure(text=self._tr("Применить"))
+            self.close_button.configure(text=self._tr("Закрыть"))
+            self.language_label.configure(text=self._tr("Язык / Language"))
         return True
 
     def _flash_saved(self) -> None:
