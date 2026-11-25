@@ -119,12 +119,12 @@ class SettingsWindow:
     def _build_capture(self) -> None:
         tab = self._tab("Захват")
         self.var_hotkey = tk.StringVar()
-        self._row(tab, 0, "Горячая клавиша")
+        self._row(tab, 0, self._tr("Горячая клавиша"))
         hot_row = ttk.Frame(tab)
         hot_row.grid(row=0, column=1, sticky="ew", pady=6)
         self.hotkey_entry = ttk.Entry(hot_row, textvariable=self.var_hotkey, width=26)
         self.hotkey_entry.pack(side="left")
-        self.record_button = ttk.Button(hot_row, text="Записать…", command=self._record_hotkey)
+        self.record_button = ttk.Button(hot_row, text=self._tr("Записать…"), command=self._record_hotkey)
         self.record_button.pack(side="left", padx=(8, 0))
 
     def _build_saving(self) -> None:
@@ -137,25 +137,25 @@ class SettingsWindow:
 
         ttk.Checkbutton(
             tab,
-            text="Сохранять снимки в папку",
+            text=self._tr("Сохранять снимки в папку"),
             variable=self.var_save_enabled,
             command=self._mark_dirty,
         ).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 10))
 
-        self._row(tab, 1, "Папка")
+        self._row(tab, 1, self._tr("Папка"))
         folder_row = ttk.Frame(tab)
         folder_row.grid(row=1, column=1, sticky="ew", pady=3)
         ttk.Entry(folder_row, textvariable=self.var_folder, width=52).pack(
             side="left", fill="x", expand=True
         )
-        ttk.Button(folder_row, text="Обзор…", command=self._browse).pack(
+        ttk.Button(folder_row, text=self._tr("Обзор…"), command=self._browse).pack(
             side="left", padx=(8, 0)
         )
-        ttk.Button(folder_row, text="Открыть", command=self.app.open_folder).pack(
+        ttk.Button(folder_row, text=self._tr("Открыть"), command=self.app.open_folder).pack(
             side="left", padx=(6, 0)
         )
 
-        self._row(tab, 2, "Формат")
+        self._row(tab, 2, self._tr("Формат"))
         self.format_box = ttk.Combobox(
             tab,
             textvariable=self.var_format,
@@ -166,7 +166,7 @@ class SettingsWindow:
         self.format_box.grid(row=2, column=1, sticky="w")
         self.format_box.bind("<<ComboboxSelected>>", lambda _e: self._mark_dirty())
 
-        self._row(tab, 3, "Качество JPG")
+        self._row(tab, 3, self._tr("Качество JPG"))
         quality_row = ttk.Frame(tab)
         quality_row.grid(row=3, column=1, sticky="ew")
         quality_scale = ttk.Scale(
@@ -182,7 +182,7 @@ class SettingsWindow:
         self.quality_label = ttk.Label(quality_row, text="95")
         self.quality_label.pack(side="left", padx=(8, 0))
 
-        self._row(tab, 4, "Шаблон имени")
+        self._row(tab, 4, self._tr("Шаблон имени"))
         ttk.Entry(tab, textvariable=self.var_template, width=52).grid(
             row=4, column=1, sticky="ew"
         )
@@ -237,12 +237,12 @@ class SettingsWindow:
         ).grid(row=0, column=0, columnspan=2, sticky="w", pady=4)
         ttk.Checkbutton(
             tab,
-            text="Показывать миниатюру",
+            text=self._tr("Показывать миниатюру"),
             variable=self.var_thumbnail,
             command=self._mark_dirty,
         ).grid(row=1, column=0, columnspan=2, sticky="w", pady=4)
 
-        self._row(tab, 2, "Длительность")
+        self._row(tab, 2, self._tr("Длительность"))
         duration = ttk.Combobox(
             tab,
             textvariable=self.var_duration,
@@ -383,7 +383,7 @@ class SettingsWindow:
         return True
 
     def _flash_saved(self) -> None:
-        self.saved_label.config(text="Сохранено")
+        self.saved_label.config(text=self._tr("Сохранено"))
         self.top.after(1500, lambda: self.saved_label.config(text=""))
 
     def _browse(self) -> None:
@@ -404,14 +404,14 @@ class SettingsWindow:
             self.app.record_hotkey(self._finish_record)
         except Exception as exc:
             self._recording = False
-            self.record_button.config(text="Записать…", state="normal")
-            messagebox.showerror("Ошибка", str(exc), parent=self.top)
+            self.record_button.config(text=self._tr("Записать…"), state="normal")
+            messagebox.showerror(self._tr("Ошибка"), str(exc), parent=self.top)
 
     def _finish_record(self, key: str | None) -> None:
         if not self.top.winfo_exists():
             return
         self._recording = False
-        self.record_button.config(text="Записать…", state="normal")
+        self.record_button.config(text=self._tr("Записать…"), state="normal")
         self.app.resume_hotkeys()
         if key and key.lower() != "esc":
             self.var_hotkey.set(key.lower())
@@ -438,7 +438,7 @@ class SettingsWindow:
                 parent=self.top,
             )
         else:
-            messagebox.showerror("Ошибка", "Не удалось изменить настройку Windows.", parent=self.top)
+            messagebox.showerror(self._tr("Ошибка"), "Не удалось изменить настройку Windows.", parent=self.top)
 
     def _refresh_snipping_status(self) -> None:
         enabled = is_snipping_tool_prtscr_enabled()
