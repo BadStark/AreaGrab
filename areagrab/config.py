@@ -131,7 +131,7 @@ class Settings:
                         language, _ = winreg.QueryValueEx(key, 'InitialLanguage')
                     if language in LANGUAGES:
                         settings.advanced.language = language
-                except OSError:
+                except (ImportError, OSError):
                     pass
             settings.save_settings(path)
             return settings

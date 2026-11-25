@@ -7,6 +7,8 @@ from tkinter import filedialog, ttk
 
 from PIL import Image, ImageTk
 
+from .localization import capture_labels, update_labels
+
 log = logging.getLogger(__name__)
 
 
@@ -16,9 +18,7 @@ class PreviewWindow:
         self.image = image
         self.path = path
         self.top = tk.Toplevel(app.root)
-        self.top.title("AreaGrab — предпросмотр")
         self.top.geometry("820x620")
-        self.top.minsize(520, 420)
 
         self._photo: ImageTk.PhotoImage | None = None
         self.canvas = tk.Canvas(self.top, bg="#0f172a", highlightthickness=0)
@@ -27,16 +27,26 @@ class PreviewWindow:
 
         bar = ttk.Frame(self.top)
         bar.pack(fill="x", padx=10, pady=10)
-        ttk.Button(bar, text="Копировать", command=self._copy).pack(side="left")
-        ttk.Button(bar, text="Сохранить как…", command=self._save_as).pack(
+        ttk.Button(bar, text='Копировать', command=self._copy).pack(side="left")
+        ttk.Button(bar, text='Сохранить как…', command=self._save_as).pack(
             side="left", padx=8
         )
         if path is not None:
             ttk.Button(
-                bar, text="Открыть файл", command=lambda: app.open_path(path)
+                bar, text='Открыть файл', command=lambda: app.open_path(path)
             ).pack(side="left")
-        ttk.Button(bar, text="Закрыть", command=self.top.destroy).pack(side="right")
+        ttk.Button(bar, text='Закрыть', command=self.top.destroy).pack(side="right")
 
+        labels = capture_labels(self.top)
+
+        def refresh(_event=None):
+            self.top.title(self.app.tr("AreaGrab — предпросмотр"))
+            update_labels(labels, self.app.tr)
+            self.top.update_idletasks()
+            self.top.minsize(max(520, bar.winfo_reqwidth() + 24), 420)
+
+        self.top.bind("<<AreaGrabLanguageChanged>>", refresh)
+        refresh()
         self.top.after(50, self._render)
 
     def _render(self) -> None:
@@ -61,6 +71,7 @@ class PreviewWindow:
     def _save_as(self) -> None:
         selected = filedialog.asksaveasfilename(
             parent=self.top,
+            title=self.app.tr("Сохранить как…"),
             defaultextension=".png",
             filetypes=[("PNG", "*.png"), ("JPEG", "*.jpg")],
         )
@@ -73,8 +84,8 @@ class PreviewWindow:
             else:
                 self.image.save(path, "PNG")
             self.app.toast(
-                "Сохранено", str(path), thumbnail=self.image, actions=[]
+                self.app.tr('Сохранено'), str(path), thumbnail=self.image, actions=[]
             )
         except Exception as exc:
             log.exception("Save as failed")
-            self.app.toast("Ошибка", str(exc))
+            self.app.toast(self.app.tr("Не удалось сохранить"), self.app.error_text(exc))

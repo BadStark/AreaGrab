@@ -71,6 +71,7 @@ class Toast:
             bg=BG,
             fg=FG,
             font=("Segoe UI", 10, "bold"),
+            wraplength=290,
             anchor="w",
             justify="left",
         ).pack(fill="x")
@@ -104,7 +105,7 @@ class Toast:
                     pady=3,
                     font=("Segoe UI", 9),
                     cursor="hand2",
-                ).pack(side="left", padx=(0, 6))
+                ).pack(anchor="w", pady=(0, 3))
 
         close = tk.Label(
             outer,

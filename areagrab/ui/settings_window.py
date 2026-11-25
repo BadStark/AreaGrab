@@ -3,18 +3,15 @@ from __future__ import annotations
 import logging
 import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, ttk
 
 from .. import __version__
-from ..i18n import LANGUAGES, translate
+from ..i18n import LANGUAGES
 from ..constants import APP_NAME, WEBSITE_URL
 from ..hotkeys import validate_hotkey
 from ..storage import target_folder
-from ..win32_utils import (
-    is_snipping_tool_prtscr_enabled,
-    open_url,
-    set_snipping_tool_prtscr_enabled,
-)
+from ..win32_utils import open_url
+from .localization import LocalizedDialog, capture_labels, update_labels
 
 log = logging.getLogger(__name__)
 
@@ -24,9 +21,8 @@ class SettingsWindow:
         self.app = app
         self.root = app.root
         self.top = tk.Toplevel(self.root)
-        self.top.title(f"{APP_NAME} — {self._tr('Настройки')}")
-        self.top.geometry("760x560")
-        self.top.minsize(700, 500)
+
+        self.top.minsize(760, 500)
         self.top.protocol("WM_DELETE_WINDOW", self.close)
         self._recording = False
         self._loading = True
@@ -51,13 +47,13 @@ class SettingsWindow:
         bottom.pack(fill="x", padx=12, pady=10)
         self.saved_label = ttk.Label(bottom, text="", foreground="#16a34a")
         self.saved_label.pack(side="left")
-        self.close_button = ttk.Button(bottom, text=self._tr("Закрыть"), command=self.close)
+        self.close_button = ttk.Button(bottom, text="Закрыть", command=self.close)
         self.close_button.pack(side="right")
-        self.apply_button = ttk.Button(bottom, text=self._tr("Применить"), command=self._save)
+        self.apply_button = ttk.Button(bottom, text="Применить", command=self._save)
         self.apply_button.pack(side="right", padx=(0, 10))
 
+        self._remember_labels()
         self._load_values()
-        self._refresh_language()
         for variable in (self.var_autostart, self.var_copy, self.var_clear_history,
                          self.var_language, self.var_hotkey, self.var_save_enabled, self.var_folder,
                          self.var_format, self.var_quality, self.var_template,
@@ -66,7 +62,7 @@ class SettingsWindow:
         self.top.after(100, self._focus)
 
     def _tr(self, text):
-        return translate(text, self.app.settings.advanced.language)
+        return self.app.tr(text)
 
     def _focus(self) -> None:
         try:
@@ -79,7 +75,7 @@ class SettingsWindow:
 
     def _tab(self, title: str) -> ttk.Frame:
         frame = ttk.Frame(self.notebook, padding=16)
-        self.notebook.add(frame, text=self._tr(title))
+        self.notebook.add(frame, text=title)
         return frame
 
     @staticmethod
@@ -94,9 +90,11 @@ class SettingsWindow:
         self.var_copy = tk.BooleanVar()
         self.var_clear_history = tk.BooleanVar()
         self.var_language = tk.StringVar()
-        self.language_label = ttk.Label(tab, text=self._tr("Язык / Language"))
-        self.language_label.grid(row=3, column=0, sticky='w', pady=(16, 4))
-        ttk.Combobox(tab, textvariable=self.var_language, values=tuple(LANGUAGES.values()), state='readonly', width=25).grid(row=3, column=1, sticky='w', pady=(16, 4))
+        ttk.Label(tab, text="Язык / Language").grid(row=3, column=0, sticky='w', pady=(16, 4))
+        self.language_box = ttk.Combobox(
+            tab, textvariable=self.var_language, state="readonly", width=30
+        )
+        self.language_box.grid(row=3, column=1, sticky="w", pady=(16, 4))
 
         ttk.Checkbutton(
             tab,
@@ -120,16 +118,17 @@ class SettingsWindow:
     def _build_capture(self) -> None:
         tab = self._tab("Захват")
         self.var_hotkey = tk.StringVar()
-        self._row(tab, 0, self._tr("Горячая клавиша"))
+        self._row(tab, 0, "Горячая клавиша")
         hot_row = ttk.Frame(tab)
         hot_row.grid(row=0, column=1, sticky="ew", pady=6)
         self.hotkey_entry = ttk.Entry(hot_row, textvariable=self.var_hotkey, width=26)
         self.hotkey_entry.pack(side="left")
-        self.record_button = ttk.Button(hot_row, text=self._tr("Записать…"), command=self._record_hotkey)
+        self.record_button = ttk.Button(hot_row, text="Записать…", command=self._record_hotkey)
         self.record_button.pack(side="left", padx=(8, 0))
 
     def _build_saving(self) -> None:
         tab = self._tab("Сохранение")
+        tab.columnconfigure(1, weight=1)
         self.var_save_enabled = tk.BooleanVar()
         self.var_folder = tk.StringVar()
         self.var_format = tk.StringVar()
@@ -138,36 +137,36 @@ class SettingsWindow:
 
         ttk.Checkbutton(
             tab,
-            text=self._tr("Сохранять снимки в папку"),
+            text="Сохранять снимки в папку",
             variable=self.var_save_enabled,
             command=self._mark_dirty,
         ).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 10))
 
-        self._row(tab, 1, self._tr("Папка"))
+        self._row(tab, 1, "Папка")
         folder_row = ttk.Frame(tab)
         folder_row.grid(row=1, column=1, sticky="ew", pady=3)
-        ttk.Entry(folder_row, textvariable=self.var_folder, width=52).pack(
+        ttk.Entry(folder_row, textvariable=self.var_folder, width=32).pack(
             side="left", fill="x", expand=True
         )
-        ttk.Button(folder_row, text=self._tr("Обзор…"), command=self._browse).pack(
+        ttk.Button(folder_row, text="Обзор…", command=self._browse).pack(
             side="left", padx=(8, 0)
         )
-        ttk.Button(folder_row, text=self._tr("Открыть"), command=self.app.open_folder).pack(
+        ttk.Button(folder_row, text="Открыть", command=self.app.open_folder).pack(
             side="left", padx=(6, 0)
         )
 
-        self._row(tab, 2, self._tr("Формат"))
+        self._row(tab, 2, "Формат")
         self.format_box = ttk.Combobox(
             tab,
             textvariable=self.var_format,
             values=("JPG (меньше)", "PNG (чётче)"),
             state="readonly",
-            width=18,
+            width=26,
         )
         self.format_box.grid(row=2, column=1, sticky="w")
         self.format_box.bind("<<ComboboxSelected>>", lambda _e: self._mark_dirty())
 
-        self._row(tab, 3, self._tr("Качество JPG"))
+        self._row(tab, 3, "Качество JPG")
         quality_row = ttk.Frame(tab)
         quality_row.grid(row=3, column=1, sticky="ew")
         quality_scale = ttk.Scale(
@@ -183,14 +182,15 @@ class SettingsWindow:
         self.quality_label = ttk.Label(quality_row, text="95")
         self.quality_label.pack(side="left", padx=(8, 0))
 
-        self._row(tab, 4, self._tr("Шаблон имени"))
-        ttk.Entry(tab, textvariable=self.var_template, width=52).grid(
+        self._row(tab, 4, "Шаблон имени")
+        ttk.Entry(tab, textvariable=self.var_template, width=32).grid(
             row=4, column=1, sticky="ew"
         )
         ttk.Label(
             tab,
             text="Доступно: {date}, {time}, {datetime}. Расширение добавляется автоматически.",
             foreground="#64748b",
+            wraplength=450,
         ).grid(row=5, column=1, sticky="w", pady=(2, 8))
 
         ttk.Label(
@@ -238,12 +238,12 @@ class SettingsWindow:
         ).grid(row=0, column=0, columnspan=2, sticky="w", pady=4)
         ttk.Checkbutton(
             tab,
-            text=self._tr("Показывать миниатюру"),
+            text="Показывать миниатюру",
             variable=self.var_thumbnail,
             command=self._mark_dirty,
         ).grid(row=1, column=0, columnspan=2, sticky="w", pady=4)
 
-        self._row(tab, 2, self._tr("Длительность"))
+        self._row(tab, 2, "Длительность")
         duration = ttk.Combobox(
             tab,
             textvariable=self.var_duration,
@@ -257,6 +257,7 @@ class SettingsWindow:
             tab,
             text="По умолчанию 2,2 секунды. При наведении мыши уведомление остаётся открытым.",
             foreground="#64748b",
+            wraplength=560,
         ).grid(row=3, column=0, columnspan=2, sticky="w", pady=(8, 0))
 
     def _build_about(self) -> None:
@@ -270,21 +271,21 @@ class SettingsWindow:
             foreground="#475569",
         ).pack(anchor="w", pady=(4, 14))
 
-        ttk.Button(tab, text="Открыть папку снимков", command=self.app.open_folder).pack(
+        ttk.Button(tab, text='Открыть папку снимков', command=self.app.open_folder).pack(
             anchor="w", pady=3
         )
-        ttk.Button(tab, text="Открыть папку логов", command=self.app.open_logs).pack(
+        ttk.Button(tab, text='Открыть папку логов', command=self.app.open_logs).pack(
             anchor="w", pady=3
         )
-        ttk.Button(tab, text="Сайт AreaGrab", command=lambda: open_url(WEBSITE_URL)).pack(
+        ttk.Button(tab, text='Сайт AreaGrab', command=lambda: open_url(WEBSITE_URL)).pack(
             anchor="w", pady=3
         )
-        ttk.Button(tab, text="Сбросить настройки", command=self._reset).pack(
+        ttk.Button(tab, text='Сбросить настройки', command=self._reset).pack(
             anchor="w", pady=(14, 3)
         )
         ttk.Label(
             tab,
-            text="AreaGrab — быстрый захват экрана для Windows. Снимки можно сохранять в JPG/PNG, копировать в буфер и просматривать в истории. PrtScr — новая область; Ctrl+PrtScr — повтор последней области. История в памяти очищается при завершении приложения.",
+            text='AreaGrab — быстрый захват экрана для Windows. Снимки можно сохранять в JPG/PNG, копировать в буфер и просматривать в истории. PrtScr — новая область; Ctrl+PrtScr — повтор последней области. История в памяти очищается при завершении приложения.',
             foreground="#64748b",
             wraplength=560,
         ).pack(anchor="w", pady=(14, 0))
@@ -294,14 +295,13 @@ class SettingsWindow:
     def _load_values(self) -> None:
         self._loading = True
         s = self.app.settings
-        self.var_language.set(LANGUAGES[s.advanced.language])
+        self._refresh_language(s.advanced.language, s.save.format)
         self.var_autostart.set(s.advanced.autostart)
         self.var_copy.set(s.clipboard.copy_image)
         self.var_clear_history.set(s.clipboard.clear_on_exit)
         self.var_hotkey.set(s.hotkeys.capture)
         self.var_save_enabled.set(s.save.enabled)
         self.var_folder.set(s.save.folder)
-        self.var_format.set("PNG (чётче)" if s.save.format == "png" else "JPG (меньше)")
         self.var_quality.set(s.save.jpeg_quality)
         self.var_template.set(s.save.filename_template)
         self.var_toast.set(s.notifications.toast)
@@ -322,9 +322,9 @@ class SettingsWindow:
 
     def _snapshot(self) -> tuple:
         return (
-            self.var_language.get(), self.var_autostart.get(), self.var_copy.get(), self.var_clear_history.get(),
+            self.language_box.current(), self.var_autostart.get(), self.var_copy.get(), self.var_clear_history.get(),
             self.var_hotkey.get().strip().lower(), self.var_save_enabled.get(),
-            self.var_folder.get().strip(), self.var_format.get(), int(self.var_quality.get()),
+            self.var_folder.get().strip(), self.format_box.current(), int(self.var_quality.get()),
             self.var_template.get(), self.var_toast.get(), int(self.var_duration.get()),
             self.var_thumbnail.get(),
         )
@@ -343,23 +343,23 @@ class SettingsWindow:
         hotkey = self.var_hotkey.get().strip().lower()
         if hotkey and hotkey != self.app.settings.hotkeys.capture:
             if not validate_hotkey(hotkey):
-                messagebox.showerror(
-                    "Некорректная клавиша",
-                    "Не удалось распознать сочетание. Примеры: print_screen, ctrl+shift+4.",
-                    parent=self.top,
+                LocalizedDialog(
+                    self.top,
+                    self._tr('Некорректная клавиша'),
+                    self._tr('Не удалось распознать сочетание. Примеры: print_screen, ctrl+shift+4.'),
+                    self._tr,
                 )
                 return False
 
-
         s = self.app.settings
         old_language = s.advanced.language
-        s.advanced.language = next((key for key, label in LANGUAGES.items() if label == self.var_language.get()), 'auto')
+        s.advanced.language = tuple(LANGUAGES)[self.language_box.current()]
         s.advanced.autostart = bool(self.var_autostart.get())
         s.clipboard.copy_image = bool(self.var_copy.get())
         s.clipboard.clear_on_exit = bool(self.var_clear_history.get())
         s.save.enabled = bool(self.var_save_enabled.get())
         s.save.folder = self.var_folder.get().strip()
-        s.save.format = "png" if self.var_format.get().startswith("PNG") else "jpg"
+        s.save.format = ("jpg", "png")[self.format_box.current()]
         s.save.jpeg_quality = int(self.var_quality.get())
         s.save.filename_template = self.var_template.get().strip() or "AreaGrab_{date}_{time}"
         s.notifications.toast = bool(self.var_toast.get())
@@ -371,38 +371,37 @@ class SettingsWindow:
 
         s.validate()
         self.app.settings_changed()
+        if old_language != s.advanced.language:
+            self._loading = True
+            self._refresh_language(s.advanced.language, s.save.format)
+            self._loading = False
         self._baseline = self._snapshot()
         self._update_apply()
         self._flash_saved()
-        if old_language != s.advanced.language:
-            self._refresh_language()
         return True
 
-    def _refresh_language(self):
+    def _remember_labels(self):
+        self._tab_titles = {tab: self.notebook.tab(tab, "text") for tab in self.notebook.tabs()}
+        self._labels = capture_labels(self.top)
+
+    def _refresh_language(self, language, image_format):
         self.top.title(f"{APP_NAME} — {self._tr('Настройки')}")
-        def refresh(widget):
-            try:
-                original = getattr(widget, "_locale_source", None)
-                if original is None:
-                    original = widget.cget("text")
-                    widget._locale_source = original
-                widget.configure(text=self._tr(original))
-            except (tk.TclError, AttributeError):
-                pass
-            for child in widget.winfo_children():
-                refresh(child)
-        for tab, label in zip(self.notebook.tabs(), ("Общие", "Захват", "Сохранение", "Буфер", "Уведомления", "О программе")):
+        for tab, label in self._tab_titles.items():
             self.notebook.tab(tab, text=self._tr(label))
-        refresh(self.top)
+        update_labels(self._labels, self._tr)
+        self.language_box.configure(values=(self._tr("Язык системы"), *tuple(LANGUAGES.values())[1:]))
+        self.language_box.current(tuple(LANGUAGES).index(language))
+        self.format_box.configure(values=(self._tr("JPG (меньше)"), self._tr("PNG (чётче)")))
+        self.format_box.current(("jpg", "png").index(image_format))
 
     def _flash_saved(self) -> None:
-        self.saved_label.config(text=self._tr("Сохранено"))
+        self.saved_label.config(text=self._tr('Сохранено'))
         self.top.after(1500, lambda: self.saved_label.config(text=""))
 
     def _browse(self) -> None:
         initial = self.var_folder.get() or str(target_folder(self.app.settings))
         selected = filedialog.askdirectory(
-            parent=self.top, initialdir=initial, title="Выберите папку для снимков"
+            parent=self.top, initialdir=initial, title=self._tr('Выберите папку для снимков')
         )
         if selected:
             self.var_folder.set(selected)
@@ -412,93 +411,59 @@ class SettingsWindow:
         if self._recording:
             return
         self._recording = True
-        self.record_button.config(text="Нажмите сочетание…", state="disabled")
+        self.record_button.config(text=self._tr('Нажмите сочетание…'), state="disabled")
         try:
             self.app.record_hotkey(self._finish_record)
         except Exception as exc:
             self._recording = False
-            self.record_button.config(text=self._tr("Записать…"), state="normal")
-            messagebox.showerror(self._tr("Ошибка"), str(exc), parent=self.top)
+            self.record_button.config(text=self._tr('Записать…'), state="normal")
+            log.exception("Could not record shortcut")
+            LocalizedDialog(self.top, self._tr("Ошибка"), self.app.error_text(exc), self._tr)
 
     def _finish_record(self, key: str | None) -> None:
         if not self.top.winfo_exists():
             return
         self._recording = False
-        self.record_button.config(text=self._tr("Записать…"), state="normal")
+        self.record_button.config(text=self._tr('Записать…'), state="normal")
         self.app.resume_hotkeys()
         if key and key.lower() != "esc":
             self.var_hotkey.set(key.lower())
             self._mark_dirty()
-
-    def _fix_snipping(self) -> None:
-        if not is_snipping_tool_prtscr_enabled():
-            self._refresh_snipping_status()
-            return
-        if not messagebox.askyesno(
-            "Snipping Tool",
-            "Отключить открытие Snipping Tool по PrtScr?\n\n"
-            "Это меняет только вашу настройку Windows (HKCU), не требует прав администратора. "
-            "AreaGrab продолжит работать по PrtScr.",
-            parent=self.top,
-        ):
-            return
-        if set_snipping_tool_prtscr_enabled(False):
-            self._refresh_snipping_status()
-            messagebox.showinfo(
-                "Готово",
-                "PrtScr больше не будет открывать Snipping Tool. "
-                "Если изменение не применилось сразу — перезапустите Snipping Tool.",
-                parent=self.top,
-            )
-        else:
-            messagebox.showerror(self._tr("Ошибка"), "Не удалось изменить настройку Windows.", parent=self.top)
-
-    def _refresh_snipping_status(self) -> None:
-        enabled = is_snipping_tool_prtscr_enabled()
-        if enabled:
-            self.snip_status.config(
-                text="Сейчас PrtScr также открывает Snipping Tool Windows.",
-                foreground="#b45309",
-            )
-            self.snip_button.state(["!disabled"])
-        else:
-            self.snip_status.config(
-                text="PrtScr не перехватывается Snipping Tool.", foreground="#16a34a"
-            )
-            self.snip_button.state(["disabled"])
 
     def _clear_history(self) -> None:
         self.app.clear_history()
         self._flash_saved()
 
     def _reset(self) -> None:
-        if not messagebox.askyesno(
-            "Сбросить настройки",
-            "Вернуть все настройки AreaGrab к значениям по умолчанию?",
-            parent=self.top,
-        ):
+        if LocalizedDialog(
+            self.top,
+            self._tr('Сбросить настройки'),
+            self._tr('Вернуть все настройки AreaGrab к значениям по умолчанию?'),
+            self._tr, ("Да", "Нет"),
+        ).result != 0:
             return
         self.app.reset_settings()
         self._load_values()
 
     def close(self) -> None:
         if self._recording:
-            messagebox.showinfo(
-                "Запись клавиши",
-                "Нажмите сочетание клавиш или Esc, чтобы завершить запись.",
-                parent=self.top,
+            LocalizedDialog(
+                self.top,
+                self._tr('Запись клавиши'),
+                self._tr('Нажмите сочетание клавиш или Esc, чтобы завершить запись.'),
+                self._tr,
             )
             return
         if hasattr(self, "_baseline") and self._snapshot() != self._baseline:
-            choice = messagebox.askyesnocancel(
-                "Несохранённые изменения",
-                "Сохранить изменения настроек перед закрытием?\n\n"
-                "Да — сохранить; Нет — закрыть без сохранения; Отмена — вернуться.",
-                parent=self.top,
-            )
-            if choice is None:
+            choice = LocalizedDialog(
+                self.top,
+                self._tr('Несохранённые изменения'),
+                self._tr('Сохранить изменения настроек перед закрытием?\n\nДа — сохранить; Нет — закрыть без сохранения; Отмена — вернуться.'),
+                self._tr, ("Да", "Нет", "Отмена"),
+            ).result
+            if choice is None or choice == 2:
                 return
-            if choice and not self._save():
+            if choice == 0 and not self._save():
                 return
         self.top.destroy()
         self.app.settings_window = None

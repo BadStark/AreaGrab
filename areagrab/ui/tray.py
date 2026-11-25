@@ -7,7 +7,6 @@ from pathlib import Path
 import pystray
 from PIL import Image, ImageDraw
 
-from ..i18n import translate
 from ..constants import APP_NAME, resource_path
 
 log = logging.getLogger(__name__)
@@ -79,17 +78,17 @@ class TrayIcon:
     def _build_menu(self) -> pystray.Menu:
         items: list[pystray.MenuItem] = [
             pystray.MenuItem(
-                lambda _item: translate("Сделать снимок", self.app.settings.advanced.language) + " (" + ("PrtScr" if self.app.settings.hotkeys.capture == "print_screen" else self.app.settings.hotkeys.capture) + ")",
+                lambda _item: self.app.tr('Сделать снимок') + " (" + ("PrtScr" if self.app.settings.hotkeys.capture == "print_screen" else self.app.settings.hotkeys.capture) + ")",
                 lambda _icon, _item: self.app.post("capture"),
                 default=True,
             ),
             pystray.MenuItem(
-                "Повторить последнюю область (Ctrl+PrtScr)",
+                self.app.tr('Повторить последнюю область (Ctrl+PrtScr)'),
                 lambda _icon, _item: self.app.post("repeat"),
                 enabled=self.app.last_rect is not None,
             ),
             pystray.MenuItem(
-                translate("Весь экран", self.app.settings.advanced.language),
+                self.app.tr('Весь экран'),
                 lambda _icon, _item: self.app.post("capture_full"),
             ),
             pystray.Menu.SEPARATOR,
@@ -98,28 +97,28 @@ class TrayIcon:
         # Native Windows tray menus support nested text menus, not embedded thumbnails.
         # Paginate the RAM history so older entries remain reachable.
         items.append(pystray.MenuItem(
-            translate("Последние снимки", self.app.settings.advanced.language),
+            self.app.tr('Последние снимки'),
             pystray.Menu(lambda: self._history_page(0)),
             enabled=lambda _item: bool(self.app.history.items()),
         ))
         items.extend(
             [
                 pystray.MenuItem(
-                    translate("Открыть папку", self.app.settings.advanced.language), lambda _icon, _item: self.app.post("folder")
+                    self.app.tr('Открыть папку'), lambda _icon, _item: self.app.post("folder")
                 ),
                 pystray.Menu.SEPARATOR,
                 pystray.MenuItem(
-                    translate("Настройки…", self.app.settings.advanced.language), lambda _icon, _item: self.app.post("settings")
+                    self.app.tr('Настройки…'), lambda _icon, _item: self.app.post("settings")
                 ),
                 pystray.MenuItem(
-                    lambda _item: "Возобновить работу AreaGrab" if self.app.hotkeys.paused else "Приостановить работу AreaGrab",
+                    lambda _item: self.app.tr('Возобновить работу AreaGrab') if self.app.hotkeys.paused else self.app.tr('Приостановить работу AreaGrab'),
                     lambda _icon, _item: self.app.post("toggle_pause"),
                 ),
                 pystray.Menu.SEPARATOR,
                 pystray.MenuItem(
-                    translate("О программе", self.app.settings.advanced.language), lambda _icon, _item: self.app.post("about")
+                    self.app.tr('О программе'), lambda _icon, _item: self.app.post("about")
                 ),
-                pystray.MenuItem(translate("Выход", self.app.settings.advanced.language), lambda _icon, _item: self.app.post("quit")),
+                pystray.MenuItem(self.app.tr('Выход'), lambda _icon, _item: self.app.post("quit")),
             ]
         )
         return pystray.Menu(*items)
@@ -135,7 +134,7 @@ class TrayIcon:
             return action
 
         if not entries:
-            return (pystray.MenuItem(translate("Нет снимков", self.app.settings.advanced.language), None, enabled=False),)
+            return (pystray.MenuItem(self.app.tr('Нет снимков'), None, enabled=False),)
         for index in range(start, min(start + page_size, len(entries))):
             shot = entries[index]
             label = (
@@ -148,7 +147,7 @@ class TrayIcon:
             ))
         if start + page_size < len(entries):
             menu.append(pystray.MenuItem(
-                translate("Более старые →", self.app.settings.advanced.language),
+                self.app.tr('Более старые →'),
                 pystray.Menu(lambda: self._history_page(page + 1)),
             ))
         return tuple(menu)
