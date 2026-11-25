@@ -54,9 +54,18 @@ $env:AREAGRAB_LOCAL_DIR="$PWD\.test-localappdata"
 python AreaGrab.py
 ```
 
+## Test local screenshot sharing
+
+In this test build, close any running AreaGrab instance and launch
+`AreaGrab.exe --preview-pro` (or `python AreaGrab.py --preview-pro` from source).
+Capture a screenshot and choose **Send to device** in its notification or tray history.
+The receiving device must be on the same local network. The link uses unencrypted HTTP
+and stops working when its timer ends or you close the sharing window.
+
 ## Build
 
 ```powershell
+python -m pip install -r requirements.txt pyinstaller zxing-cpp
 python -m unittest discover -s tests -v
 python -m PyInstaller --noconfirm --workpath build_v11 --distpath dist_final AreaGrab.spec
 & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' areagrab_setup.iss

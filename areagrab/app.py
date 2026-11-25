@@ -17,6 +17,7 @@ from . import __version__
 from . import clipboard as clipboard_service
 from . import storage
 from .config import Settings
+from .share_source import ShareSource, file_identity
 from .constants import APP_NAME, LOG_DIR, SETTINGS_PATH, WEBSITE_URL
 from .history import History
 from .installer_shutdown import listen_for_installer_shutdown
@@ -55,6 +56,7 @@ class DeliveryResult:
     clipboard_error: str | None
     save_error: str | None
     point: tuple[int, int]
+    share_source: ShareSource
 
 
 class AreaGrabApp:
@@ -75,6 +77,7 @@ class AreaGrabApp:
         self.history = History(self.settings.clipboard.history_size)
         self.last_rect: tuple[int, int, int, int] | None = None
         self.last_image: Image.Image | None = None
+        self._share_window: tk.Toplevel | None = None
         self._events: queue.Queue[tuple[str, object | None]] = queue.Queue()
         self._capture_pending = False
         self._quitting = False
@@ -101,6 +104,14 @@ class AreaGrabApp:
         )
 
         self.root.report_callback_exception = self._tk_exception
+
+    @property
+    def interface_language(self) -> str:
+        return self._language
+
+    @property
+    def can_share(self) -> bool:
+        return self.args.preview_pro and self.settings.lan_share.enabled
 
     def tr(self, text: str, **fields: object) -> str:
         return translate(text, self._language, **fields)
@@ -163,6 +174,8 @@ class AreaGrabApp:
             self.open_settings()
         elif kind == "pro":
             self.open_pro()
+        elif kind == "share":
+            self.open_share(payload)
         elif kind == "history_edit":
             try:
                 self.open_editor(payload.image())
@@ -287,6 +300,13 @@ class AreaGrabApp:
             except Exception:
                 log.exception("History PNG encoding failed")
 
+        identity = None
+        if path is not None and self.args.preview_pro:
+            try:
+                identity = file_identity(path.stat())
+            except OSError:
+                pass
+
         self.post(
             "delivered",
             DeliveryResult(
@@ -298,6 +318,7 @@ class AreaGrabApp:
                 clipboard_error=clipboard_error,
                 save_error=save_error,
                 point=point,
+                share_source=ShareSource(png, path, identity),
             ),
         )
 
@@ -306,7 +327,7 @@ class AreaGrabApp:
             return
         if result.png:
             try:
-                self.history.add(result.image, result.png, result.path)
+                self.history.add(result.image, result.png, result.path, result.share_source)
                 self.tray.refresh()
             except Exception:
                 log.exception("Could not add history item")
@@ -345,6 +366,10 @@ class AreaGrabApp:
                     lambda img=image: self.copy_image_to_clipboard(img),
                 ),
             )
+
+        if self.can_share and self.settings.lan_share.show_in_toast and (result.png or result.path):
+            actions.append((self.tr("Отправить на устройство"),
+                            lambda source=result.share_source: self.open_share(source)))
 
         if offer:
             actions.append((self.tr("Перейти на Pro"),
@@ -466,6 +491,8 @@ class AreaGrabApp:
 
     def settings_changed(self) -> None:
         self.settings.validate()
+        if not self.can_share:
+            self.close_share()
         language = resolve_language(self.settings.advanced.language)
         if language != self._language:
             self._language = language
@@ -611,6 +638,18 @@ class AreaGrabApp:
             self.toast(self.tr('Не удалось скопировать'), self.error_text(exc))
             return False
 
+    def open_share(self, source: ShareSource) -> None:
+        if self.can_share:
+            from .ui.share_window import ShareWindow
+
+            self.close_share()
+            self._share_window = ShareWindow(self, source)
+
+    def close_share(self) -> None:
+        if self._share_window is not None and self._share_window.winfo_exists():
+            self._share_window.destroy()
+        self._share_window = None
+
     def open_pro(self, image: Image.Image | None = None) -> None:
         show_plans(self, image if image is not None else self.last_image)
 
@@ -722,6 +761,7 @@ class AreaGrabApp:
             return
         self._quitting = True
         log.info("Quitting")
+        self.close_share()
         try:
             self.save_settings()
         except Exception:
@@ -754,6 +794,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--capture", action="store_true", help="take a screenshot immediately")
     parser.add_argument("--autostart", action="store_true", help="started by Windows")
     parser.add_argument("--reset", action="store_true", help="reset settings to defaults")
+    parser.add_argument("--preview-pro", action="store_true", help="enable Pro features in the test build")
     parser.add_argument("--version", action="store_true", help="print version")
     return parser
 

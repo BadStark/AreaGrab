@@ -9,6 +9,8 @@ from pathlib import Path
 
 from PIL import Image
 
+from .share_source import ShareSource
+
 
 @dataclass
 class HistoryItem:
@@ -16,6 +18,7 @@ class HistoryItem:
     thumbnail: Image.Image
     timestamp: datetime
     path: Path | None = None
+    share_source: ShareSource | None = None
     width: int = 0
     height: int = 0
 
@@ -35,6 +38,7 @@ class History:
         image: Image.Image,
         png: bytes,
         path: Path | None = None,
+        share_source: ShareSource | None = None,
     ) -> None:
         thumb = image.copy()
         thumb.thumbnail((96, 96), Image.Resampling.LANCZOS)
@@ -43,6 +47,7 @@ class History:
             thumbnail=thumb,
             timestamp=datetime.now(),
             path=path,
+            share_source=share_source,
             width=image.width,
             height=image.height,
         )

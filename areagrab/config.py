@@ -96,6 +96,16 @@ class AdvancedSettings:
     first_run_done: bool = False
 
 
+LAN_SHARE_TTLS = (60, 120, 300)
+
+
+@dataclass
+class LanShareSettings:
+    enabled: bool = True
+    ttl: int = 60
+    show_in_toast: bool = True
+
+
 @dataclass
 class Settings:
     schema: int = 2
@@ -105,6 +115,7 @@ class Settings:
     capture: CaptureSettings = field(default_factory=CaptureSettings)
     notifications: NotificationSettings = field(default_factory=NotificationSettings)
     advanced: AdvancedSettings = field(default_factory=AdvancedSettings)
+    lan_share: LanShareSettings = field(default_factory=LanShareSettings)
     pro_preview: ProPreview = field(default_factory=ProPreview)
     license: dict[str, Any] = field(default_factory=dict)
 
@@ -200,6 +211,13 @@ class Settings:
         settings.advanced.theme = _str(adv.get("theme"), "system")
         settings.advanced.first_run_done = _bool(adv.get("first_run_done"), False)
 
+        share = _dict(raw.get("lan_share"))
+        settings.lan_share = LanShareSettings(
+            enabled=_bool(share.get("enabled"), True),
+            ttl=_int(share.get("ttl"), 60),
+            show_in_toast=_bool(share.get("show_in_toast"), True),
+        )
+
         preview = _dict(raw.get("pro_preview"))
         settings.pro_preview = ProPreview(
             captures=max(0, _int(preview.get("captures"), 0)),
@@ -213,6 +231,8 @@ class Settings:
         return settings
 
     def validate(self) -> None:
+        if self.lan_share.ttl not in LAN_SHARE_TTLS:
+            self.lan_share.ttl = 60
         if self.save.format not in ("jpg", "jpeg", "png"):
             self.save.format = "jpg"
         if self.save.format == "jpeg":

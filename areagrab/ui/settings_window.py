@@ -6,6 +6,7 @@ from pathlib import Path
 from tkinter import filedialog, ttk
 
 from .. import __version__
+from ..config import LAN_SHARE_TTLS
 from ..i18n import LANGUAGES
 from ..constants import APP_NAME, WEBSITE_URL
 from ..hotkeys import validate_hotkey
@@ -60,7 +61,8 @@ class SettingsWindow:
         for variable in (self.var_autostart, self.var_copy, self.var_clear_history,
                          self.var_language, self.var_hotkey, self.var_save_enabled, self.var_folder,
                          self.var_format, self.var_quality, self.var_template,
-                         self.var_toast, self.var_duration, self.var_thumbnail):
+                         self.var_toast, self.var_duration, self.var_thumbnail,
+                         self.var_share_enabled, self.var_share_ttl, self.var_share_toast):
             variable.trace_add("write", lambda *_args: self._mark_dirty())
         self.top.after(100, self._focus)
 
@@ -117,6 +119,19 @@ class SettingsWindow:
             variable=self.var_clear_history,
             command=self._mark_dirty,
         ).grid(row=2, column=0, columnspan=2, sticky="w", pady=4)
+
+        share = ttk.LabelFrame(tab, text="Локальная передача снимков", padding=12)
+        share.grid(row=4, column=0, columnspan=2, sticky="ew", pady=(16, 0))
+        self.var_share_enabled = tk.BooleanVar()
+        self.var_share_ttl = tk.IntVar()
+        self.var_share_toast = tk.BooleanVar()
+        ttk.Checkbutton(share, text="Включить передачу по локальной сети",
+                        variable=self.var_share_enabled).grid(row=0, column=0, columnspan=2, sticky="w")
+        self._row(share, 1, "Время действия ссылки, сек.")
+        ttk.Combobox(share, textvariable=self.var_share_ttl, values=LAN_SHARE_TTLS,
+                     state="readonly", width=7).grid(row=1, column=1, sticky="w")
+        ttk.Checkbutton(share, text="Показывать кнопку передачи в уведомлении",
+                        variable=self.var_share_toast).grid(row=2, column=0, columnspan=2, sticky="w")
 
     def _build_capture(self) -> None:
         tab = self._tab("Захват")
@@ -310,6 +325,9 @@ class SettingsWindow:
         self.var_toast.set(s.notifications.toast)
         self.var_duration.set(s.notifications.duration_ms)
         self.var_thumbnail.set(s.notifications.thumbnail)
+        self.var_share_enabled.set(s.lan_share.enabled)
+        self.var_share_ttl.set(s.lan_share.ttl)
+        self.var_share_toast.set(s.lan_share.show_in_toast)
         self._quality_label()
         self._baseline = self._snapshot()
         self._loading = False
@@ -329,7 +347,8 @@ class SettingsWindow:
             self.var_hotkey.get().strip().lower(), self.var_save_enabled.get(),
             self.var_folder.get().strip(), self.format_box.current(), int(self.var_quality.get()),
             self.var_template.get(), self.var_toast.get(), int(self.var_duration.get()),
-            self.var_thumbnail.get(),
+            self.var_thumbnail.get(), self.var_share_enabled.get(),
+            self.var_share_ttl.get(), self.var_share_toast.get(),
         )
 
     def _update_apply(self) -> None:
@@ -368,6 +387,9 @@ class SettingsWindow:
         s.notifications.toast = bool(self.var_toast.get())
         s.notifications.duration_ms = int(self.var_duration.get())
         s.notifications.thumbnail = bool(self.var_thumbnail.get())
+        s.lan_share.enabled = self.var_share_enabled.get()
+        s.lan_share.ttl = self.var_share_ttl.get()
+        s.lan_share.show_in_toast = self.var_share_toast.get()
 
         if hotkey:
             s.hotkeys.capture = hotkey

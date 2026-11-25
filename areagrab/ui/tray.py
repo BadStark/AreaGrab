@@ -141,6 +141,11 @@ class TrayIcon:
                 self.app.post("history_edit", shot)
             return action
 
+        def share_shot(source):
+            def action(_icon, _item):
+                self.app.post("share", source)
+            return action
+
         if not entries:
             return (pystray.MenuItem(self.app.tr('Нет снимков'), None, enabled=False),)
         for index in range(start, min(start + page_size, len(entries))):
@@ -154,6 +159,10 @@ class TrayIcon:
                 open_shot(index),
             ))
             menu.append(pystray.MenuItem(f"{self.app.tr('Редактировать')} · {label}", edit_shot(shot)))
+            if self.app.can_share and shot.share_source is not None:
+                menu.append(pystray.MenuItem(
+                    f"{self.app.tr('Отправить на устройство')} · {label}", share_shot(shot.share_source),
+                ))
         if start + page_size < len(entries):
             menu.append(pystray.MenuItem(
                 self.app.tr('Более старые →'),
