@@ -56,7 +56,8 @@ class SettingsWindow:
         self.apply_button = ttk.Button(bottom, text=self._tr("Применить"), command=self._save)
         self.apply_button.pack(side="right", padx=(0, 10))
 
-        self.top.after(50, self._load_values)
+        self._load_values()
+        self._refresh_language()
         for variable in (self.var_autostart, self.var_copy, self.var_clear_history,
                          self.var_language, self.var_hotkey, self.var_save_enabled, self.var_folder,
                          self.var_format, self.var_quality, self.var_template,
@@ -374,13 +375,25 @@ class SettingsWindow:
         self._update_apply()
         self._flash_saved()
         if old_language != s.advanced.language:
-            self.top.title(f"{APP_NAME} — {self._tr('Настройки')}")
-            for tab, label in zip(self.notebook.tabs(), ("Общие", "Захват", "Сохранение", "Буфер", "Уведомления", "О программе")):
-                self.notebook.tab(tab, text=self._tr(label))
-            self.apply_button.configure(text=self._tr("Применить"))
-            self.close_button.configure(text=self._tr("Закрыть"))
-            self.language_label.configure(text=self._tr("Язык / Language"))
+            self._refresh_language()
         return True
+
+    def _refresh_language(self):
+        self.top.title(f"{APP_NAME} — {self._tr('Настройки')}")
+        def refresh(widget):
+            try:
+                original = getattr(widget, "_locale_source", None)
+                if original is None:
+                    original = widget.cget("text")
+                    widget._locale_source = original
+                widget.configure(text=self._tr(original))
+            except (tk.TclError, AttributeError):
+                pass
+            for child in widget.winfo_children():
+                refresh(child)
+        for tab, label in zip(self.notebook.tabs(), ("Общие", "Захват", "Сохранение", "Буфер", "Уведомления", "О программе")):
+            self.notebook.tab(tab, text=self._tr(label))
+        refresh(self.top)
 
     def _flash_saved(self) -> None:
         self.saved_label.config(text=self._tr("Сохранено"))
