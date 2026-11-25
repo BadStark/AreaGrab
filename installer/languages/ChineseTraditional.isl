@@ -1,4 +1,5 @@
-﻿; *** Inno Setup version 6.1.0+ Chinese (Traditional) messages ***
+﻿; AreaGrab: added missing Inno Setup 6.5 messages; normalized UTF-8 encoding.
+; *** Inno Setup version 6.1.0+ Chinese (Traditional) messages ***
 ; Name: Enfeng Tsao, nelson22768384@gmail.com
 ; Based on 5.5.3+ translations by Samuel Lee, Email: 751555749@qq.com
 ; Translation based on network resource
@@ -367,6 +368,30 @@ ShutdownBlockReasonUninstallingApp=正在解除安裝 %1。
 
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
+
+DownloadingLabel2=正在下載檔案…
+ExtractingLabel=正在解壓縮檔案…
+ButtonStopExtraction=停止解壓縮(&S)
+StopExtraction=確定要停止解壓縮嗎？
+ErrorExtractionAborted=已停止解壓縮
+ErrorExtractionFailed=解壓縮失敗：%1
+ArchiveIncorrectPassword=密碼不正確
+ArchiveIsCorrupted=壓縮檔已損毀
+ArchiveUnsupportedFormat=不支援此壓縮格式
+RetryCancelSelectAction=選擇動作
+RetryCancelRetry=重試(&R)
+RetryCancelCancel=取消
+StatusDownloadFiles=正在下載檔案…
+SourceVerificationFailed=驗證來源檔案失敗：%1
+VerificationSignatureDoesntExist=簽章檔「%1」不存在
+VerificationSignatureInvalid=簽章檔「%1」無效
+VerificationKeyNotFound=簽章檔「%1」使用未知的金鑰
+VerificationFileNameIncorrect=檔名不正確
+VerificationFileTagIncorrect=檔案標記不正確
+VerificationFileSizeIncorrect=檔案大小不正確
+VerificationFileHashIncorrect=檔案雜湊值不正確
+ErrorDownloading=下載檔案時發生錯誤：
+ErrorExtracting=解壓縮時發生錯誤：
 
 [CustomMessages]
 

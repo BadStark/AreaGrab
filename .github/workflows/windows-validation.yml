@@ -75,7 +75,21 @@ jobs:
           if ((Get-ItemPropertyValue $registry InitialLanguage) -ne "zh-TW") { throw "Incorrect initial locale" }
           if (-not (Test-Path "$env:LOCALAPPDATA/Programs/AreaGrab/AreaGrab.exe")) { throw "Installed executable missing" }
 
-          New-Item -ItemType Directory -Force $settingsDir | Out-Null
+          $installedExe = Join-Path $env:LOCALAPPDATA "Programs/AreaGrab/AreaGrab.exe"
+          $app = Start-Process -FilePath $installedExe -PassThru
+          try {
+            for ($i = 0; $i -lt 60 -and -not (Test-Path $settings) -and -not $app.HasExited; $i++) {
+              Start-Sleep -Milliseconds 250
+            }
+            if (-not (Test-Path $settings)) { throw "Installed app did not create settings" }
+            if ((Get-Content -Raw $settings | ConvertFrom-Json).advanced.language -ne "zh-TW") {
+              throw "Installed app did not import the installer language"
+            }
+          } finally {
+            if (-not $app.HasExited) { Stop-Process -Id $app.Id -Force }
+            if (-not $app.WaitForExit(10000)) { throw "App did not stop after handoff smoke test" }
+          }
+
           '{"advanced":{"language":"ja","autostart":false},"save":{"format":"png","jpeg_quality":84}}' |
             Set-Content -Encoding utf8NoBOM $settings
           $hash = (Get-FileHash $settings).Hash

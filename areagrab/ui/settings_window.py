@@ -25,6 +25,7 @@ class SettingsWindow:
         self.top.minsize(760, 500)
         self.top.protocol("WM_DELETE_WINDOW", self.close)
         self._recording = False
+        self._saved_after = None
         self._loading = True
 
         style = ttk.Style(self.top)
@@ -395,8 +396,14 @@ class SettingsWindow:
         self.format_box.current(("jpg", "png").index(image_format))
 
     def _flash_saved(self) -> None:
-        self.saved_label.config(text=self._tr('Сохранено'))
-        self.top.after(1500, lambda: self.saved_label.config(text=""))
+        if self._saved_after is not None:
+            self.top.after_cancel(self._saved_after)
+        self.saved_label.config(text=self._tr("Сохранено"))
+        self._saved_after = self.top.after(1500, self._clear_saved)
+
+    def _clear_saved(self) -> None:
+        self._saved_after = None
+        self.saved_label.configure(text="")
 
     def _browse(self) -> None:
         initial = self.var_folder.get() or str(target_folder(self.app.settings))

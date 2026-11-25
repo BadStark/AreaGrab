@@ -103,7 +103,7 @@ class WindowsLocalizationTests(unittest.TestCase):
             path = Path(tmp) / "settings.json"
             registry = MagicMock()
             registry.QueryValueEx.return_value = ("zh-TW", 1)
-            with patch.dict(sys.modules, winreg=registry):
+            with patch.dict(sys.modules, winreg=registry), patch("areagrab.config.IS_PORTABLE", False):
                 settings = Settings.load(path)
                 self.assertEqual(settings.advanced.language, "zh-TW")
                 settings.advanced.language = "ja"
