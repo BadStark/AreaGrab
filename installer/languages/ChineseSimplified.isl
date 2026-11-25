@@ -224,21 +224,17 @@ ReadyMemoGroup=开始菜单文件夹：
 ReadyMemoTasks=附加任务：
 
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=正在提取附加文件...
 ButtonStopExtraction=停止提取(&S)
 StopExtraction=您确定要停止提取吗？
 ErrorExtractionAborted=提取已中止
 ErrorExtractionFailed=提取失败：%1
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=正在下载附加文件...
 ButtonStopDownload=停止下载(&S)
 StopDownload=您确定要停止下载吗？
 ErrorDownloadAborted=下载已中止
 ErrorDownloadFailed=下载失败：%1 %2
 ErrorDownloadSizeFailed=获取下载大小失败：%1 %2
-ErrorFileHash1=校验文件哈希失败：%1
-ErrorFileHash2=无效的文件哈希：预期 %1，实际 %2
 ErrorProgress=无效的进度：%1 / %2
 ErrorFileSize=文件大小错误：预期 %1，实际 %2
 
