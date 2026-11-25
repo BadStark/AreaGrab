@@ -64,12 +64,20 @@ class SettingsWindow:
                          self.var_toast, self.var_duration, self.var_thumbnail,
                          self.var_share_enabled, self.var_share_ttl, self.var_share_toast):
             variable.trace_add("write", lambda *_args: self._mark_dirty())
-        self.top.after(100, self._focus)
+        self._focus_after = self.top.after(100, self._focus)
+        self.top.bind("<Destroy>", self._cancel_timers)
 
     def _tr(self, text):
         return self.app.tr(text)
 
+    def _cancel_timers(self, event) -> None:
+        if event.widget is self.top:
+            for pending in (self._focus_after, self._saved_after):
+                if pending is not None:
+                    self.top.after_cancel(pending)
+
     def _focus(self) -> None:
+        self._focus_after = None
         try:
             self.top.lift()
             self.top.focus_force()

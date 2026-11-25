@@ -147,6 +147,25 @@ class WindowsLocalizationTests(unittest.TestCase):
                 self.assertEqual(Settings.load(path).advanced.language, "auto")
                 self.assertEqual(Settings.load(path).save.jpeg_quality, 84)
 
+    def test_closing_settings_cancels_its_saved_indicator(self):
+        import tkinter as tk
+
+        from areagrab.app import AreaGrabApp, build_parser
+        from areagrab.config import Settings
+
+        root = tk.Tk()
+        self.addCleanup(root.destroy)
+        root.withdraw()
+        with patch("areagrab.app.Settings.load", return_value=Settings()):
+            app = AreaGrabApp(root, build_parser().parse_args([]))
+        app.open_settings()
+        window = app.settings_window
+        window._flash_saved()
+        pending = window._saved_after
+        self.assertIn(pending, root.tk.call("after", "info"))
+        window.close()
+        self.assertNotIn(pending, root.tk.call("after", "info"))
+
     def test_repeated_switches_refresh_open_windows_and_tray(self):
         import tkinter as tk
         from PIL import Image
