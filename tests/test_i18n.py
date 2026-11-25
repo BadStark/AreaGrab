@@ -84,7 +84,10 @@ class LocalizationTests(unittest.TestCase):
         self.assertEqual(dict(english="en", **mapping), INSTALLER_LANGUAGES)
         custom = source.split("[CustomMessages]", 1)[1].split("[Tasks]", 1)[0]
         messages = dict(re.findall(r"^(\w+\.\w+)=(.+)$", custom, re.MULTILINE))
-        required = set(re.findall(r"CustomMessage\('(\w+)'\)", source)) | {"StartWithWindows"}
+        required = set(re.findall(r"CustomMessage\('([\w]+)'\)", source))
+        required.update(set(re.findall(r"\{cm:(\w+)\}", source)) & {
+            "AdditionalOptions", "StartWithWindows",
+        })
         self.assertEqual(set(messages), {f"{name}.{key}" for name in codes for key in required})
         for name in codes:
             for key in ("InstalledVersion", "IncomingVersion"):

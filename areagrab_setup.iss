@@ -56,6 +56,7 @@ Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
 Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
 
 [CustomMessages]
+english.AdditionalOptions=Additional options:
 english.StartWithWindows=Start AreaGrab when signing in to Windows
 english.UpgradeDetected=An existing installation or a running instance of AreaGrab was found.
 english.InstalledVersion=Installed version: %1
@@ -66,6 +67,7 @@ english.CloseFailed=AreaGrab did not close automatically. Exit from its tray men
 english.RetryClose=Exit AreaGrab from its tray menu and select Retry.
 english.UpgradeCancelled=Update cancelled because AreaGrab is still running.
 
+russian.AdditionalOptions=Дополнительные параметры:
 russian.StartWithWindows=Запускать AreaGrab при входе в Windows
 russian.UpgradeDetected=Обнаружена предыдущая установка или запущенный AreaGrab.
 russian.InstalledVersion=Установленная версия: %1
@@ -76,6 +78,7 @@ russian.CloseFailed=AreaGrab не завершился автоматическ�
 russian.RetryClose=Закройте AreaGrab через меню значка в трее и нажмите «Повторить».
 russian.UpgradeCancelled=Обновление отменено, так как AreaGrab ещё запущен.
 
+chinesesimplified.AdditionalOptions=其他选项：
 chinesesimplified.StartWithWindows=登录 Windows 时启动 AreaGrab
 chinesesimplified.UpgradeDetected=检测到已安装或正在运行的 AreaGrab。
 chinesesimplified.InstalledVersion=已安装版本：%1
@@ -86,6 +89,7 @@ chinesesimplified.CloseFailed=AreaGrab 未自动关闭。更新前请从托盘�
 chinesesimplified.RetryClose=请从托盘菜单退出 AreaGrab，然后选择“重试”。
 chinesesimplified.UpgradeCancelled=AreaGrab 仍在运行，更新已取消。
 
+chinesetraditional.AdditionalOptions=其他選項：
 chinesetraditional.StartWithWindows=登入 Windows 時啟動 AreaGrab
 chinesetraditional.UpgradeDetected=偵測到已安裝或正在執行的 AreaGrab。
 chinesetraditional.InstalledVersion=已安裝版本：%1
@@ -96,6 +100,7 @@ chinesetraditional.CloseFailed=AreaGrab 未自動關閉。更新前請從系統�
 chinesetraditional.RetryClose=請從系統匣選單結束 AreaGrab，然後選擇「重試」。
 chinesetraditional.UpgradeCancelled=AreaGrab 仍在執行，更新已取消。
 
+spanish.AdditionalOptions=Opciones adicionales:
 spanish.StartWithWindows=Iniciar AreaGrab al entrar en Windows
 spanish.UpgradeDetected=Se detectó una instalación anterior o una instancia de AreaGrab en ejecución.
 spanish.InstalledVersion=Versión instalada: %1
@@ -106,6 +111,7 @@ spanish.CloseFailed=AreaGrab no se cerró automáticamente. Sal desde su menú d
 spanish.RetryClose=Sal de AreaGrab desde la bandeja y selecciona Reintentar.
 spanish.UpgradeCancelled=Actualización cancelada porque AreaGrab sigue en ejecución.
 
+brazilianportuguese.AdditionalOptions=Opções adicionais:
 brazilianportuguese.StartWithWindows=Iniciar o AreaGrab ao entrar no Windows
 brazilianportuguese.UpgradeDetected=Foi detectada uma instalação anterior ou uma instância do AreaGrab em execução.
 brazilianportuguese.InstalledVersion=Versão instalada: %1
@@ -116,6 +122,7 @@ brazilianportuguese.CloseFailed=O AreaGrab não fechou automaticamente. Saia pel
 brazilianportuguese.RetryClose=Saia do AreaGrab pelo menu da bandeja e selecione Repetir.
 brazilianportuguese.UpgradeCancelled=Atualização cancelada porque o AreaGrab ainda está em execução.
 
+german.AdditionalOptions=Weitere Optionen:
 german.StartWithWindows=AreaGrab bei der Windows-Anmeldung starten
 german.UpgradeDetected=Eine vorhandene Installation oder laufende Instanz von AreaGrab wurde gefunden.
 german.InstalledVersion=Installierte Version: %1
@@ -126,6 +133,7 @@ german.CloseFailed=AreaGrab wurde nicht automatisch beendet. Beenden Sie es vor 
 german.RetryClose=Beenden Sie AreaGrab über das Infobereichsmenü und wählen Sie Wiederholen.
 german.UpgradeCancelled=Aktualisierung abgebrochen, da AreaGrab noch läuft.
 
+french.AdditionalOptions=Options supplémentaires :
 french.StartWithWindows=Lancer AreaGrab à l’ouverture de session Windows
 french.UpgradeDetected=Une installation existante ou une instance d’AreaGrab en cours d’exécution a été détectée.
 french.InstalledVersion=Version installée : %1
@@ -136,6 +144,7 @@ french.CloseFailed=AreaGrab ne s’est pas fermé automatiquement. Quittez-le de
 french.RetryClose=Quittez AreaGrab depuis la zone de notification, puis sélectionnez Réessayer.
 french.UpgradeCancelled=Mise à jour annulée car AreaGrab est toujours en cours d’exécution.
 
+japanese.AdditionalOptions=追加のオプション:
 japanese.StartWithWindows=Windows にサインインしたときに AreaGrab を起動
 japanese.UpgradeDetected=既存のインストールまたは実行中の AreaGrab が見つかりました。
 japanese.InstalledVersion=インストール済みのバージョン: %1
@@ -146,6 +155,7 @@ japanese.CloseFailed=AreaGrab が自動終了しませんでした。更新前�
 japanese.RetryClose=トレイメニューから AreaGrab を終了し、［再試行］を選んでください。
 japanese.UpgradeCancelled=AreaGrab が実行中のため、更新をキャンセルしました。
 
+korean.AdditionalOptions=추가 옵션:
 korean.StartWithWindows=Windows 로그인 시 AreaGrab 시작
 korean.UpgradeDetected=기존 설치 또는 실행 중인 AreaGrab이 감지되었습니다.
 korean.InstalledVersion=설치된 버전: %1
@@ -156,6 +166,7 @@ korean.CloseFailed=AreaGrab이 자동으로 종료되지 않았습니다. 업데
 korean.RetryClose=트레이 메뉴에서 AreaGrab을 종료하고 다시 시도를 선택하세요.
 korean.UpgradeCancelled=AreaGrab이 아직 실행 중이어서 업데이트가 취소되었습니다.
 
+turkish.AdditionalOptions=Ek seçenekler:
 turkish.StartWithWindows=Windows oturumu açıldığında AreaGrab’ı başlat
 turkish.UpgradeDetected=Önceki bir kurulum veya çalışan bir AreaGrab örneği bulundu.
 turkish.InstalledVersion=Yüklü sürüm: %1
@@ -166,6 +177,7 @@ turkish.CloseFailed=AreaGrab otomatik kapanmadı. Güncellemeden önce sistem te
 turkish.RetryClose=Sistem tepsisi menüsünden AreaGrab’dan çıkın ve Yeniden Dene’yi seçin.
 turkish.UpgradeCancelled=AreaGrab hâlâ çalıştığı için güncelleme iptal edildi.
 
+italian.AdditionalOptions=Opzioni aggiuntive:
 italian.StartWithWindows=Avvia AreaGrab all’accesso a Windows
 italian.UpgradeDetected=È stata rilevata un’installazione precedente o un’istanza di AreaGrab in esecuzione.
 italian.InstalledVersion=Versione installata: %1
@@ -176,6 +188,7 @@ italian.CloseFailed=AreaGrab non si è chiuso automaticamente. Esci dal menu nel
 italian.RetryClose=Chiudi AreaGrab dal menu nell’area di notifica e seleziona Riprova.
 italian.UpgradeCancelled=Aggiornamento annullato perché AreaGrab è ancora in esecuzione.
 
+polish.AdditionalOptions=Dodatkowe opcje:
 polish.StartWithWindows=Uruchamiaj AreaGrab przy logowaniu do Windows
 polish.UpgradeDetected=Wykryto istniejącą instalację lub uruchomiony program AreaGrab.
 polish.InstalledVersion=Zainstalowana wersja: %1
@@ -188,7 +201,7 @@ polish.UpgradeCancelled=Aktualizację anulowano, ponieważ AreaGrab nadal dział
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "autostart"; Description: "{cm:StartWithWindows}"; GroupDescription: "{cm:AdditionalTasks}"; Check: IsFreshProfile
+Name: "autostart"; Description: "{cm:StartWithWindows}"; GroupDescription: "{cm:AdditionalOptions}"; Check: IsFreshProfile
 
 [Files]
 Source: "dist_final\AreaGrab\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -289,7 +302,8 @@ begin
     Result := ExpandConstant('{param:AREAGRABUPDATE|0}') = '1';
     Exit;
   end;
-  Result := MsgBox(Prompt, mbConfirmation, MB_YESNO) = IDYES;
+  Result := TaskDialogMsgBox('', Prompt, mbConfirmation, MB_YESNO,
+    [SetupMessage(msgButtonYes), SetupMessage(msgButtonNo)], 0) = IDYES;
 end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
@@ -316,10 +330,8 @@ begin
   end;
   while CheckForMutexes('AreaGrab_SingleInstance_v1') do
   begin
-    if MsgBox(
-      CustomMessage('RetryClose'),
-      mbConfirmation, MB_RETRYCANCEL
-    ) <> IDRETRY then
+    if TaskDialogMsgBox('', CustomMessage('RetryClose'), mbConfirmation, MB_RETRYCANCEL,
+      [SetupMessage(msgRetryCancelRetry), SetupMessage(msgButtonCancel)], 0) <> IDRETRY then
     begin
       Result := CustomMessage('UpgradeCancelled');
       Exit;
