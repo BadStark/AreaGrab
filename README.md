@@ -56,9 +56,9 @@ python AreaGrab.py
 
 ## Test local screenshot sharing
 
-In this test build, close any running AreaGrab instance and launch
-`AreaGrab.exe --preview-pro` (or `python AreaGrab.py --preview-pro` from source).
-Capture a screenshot and choose **Send to device** in its notification or tray history.
+Close any running AreaGrab instance and double-click `AreaGrab.exe` from the Portable Pro Preview ZIP.
+From source, start `python AreaGrab.py --preview-pro`. Capture a screenshot and choose
+**Send to device** in the notification, main tray menu, or tray history.
 The receiving device must be on the same local network. The link uses unencrypted HTTP
 and stops working when its timer ends or you close the sharing window.
 

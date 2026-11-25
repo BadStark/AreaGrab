@@ -25,6 +25,14 @@ else:
 IS_PORTABLE = (PORTABLE_DIR / "portable.flag").exists()
 
 
+def is_pro_preview_package() -> bool:
+    return (
+        bool(getattr(sys, "frozen", False))
+        and IS_PORTABLE
+        and (PORTABLE_DIR / "pro-preview.flag").is_file()
+    )
+
+
 def resource_path(name: str) -> Path:
     """Return a bundled resource path (works in source tree and PyInstaller)."""
     return _RESOURCE_BASE / name

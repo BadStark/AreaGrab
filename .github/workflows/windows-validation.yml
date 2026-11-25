@@ -109,16 +109,38 @@ jobs:
           $portable = Join-Path $env:RUNNER_TEMP "AreaGrab-portable"
           Copy-Item dist_final/AreaGrab $portable -Recurse
           Copy-Item portable.flag, README-PORTABLE.txt $portable
-          $proc = Start-Process -FilePath "$portable/AreaGrab.exe" -ArgumentList @("--preview-pro", "--version") -PassThru
-          if (-not $proc.WaitForExit(30000)) {
-            Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
-            throw "Portable application startup timed out"
+          $exe = Join-Path $portable "AreaGrab.exe"
+          if ($env:GITHUB_REF -eq "refs/heads/feature/lan-screenshot-sharing") {
+            New-Item -ItemType File -Path (Join-Path $portable "pro-preview.flag") | Out-Null
+            $proc = Start-Process -FilePath $exe -PassThru
+            $log = Join-Path $portable "data/logs/areagrab.log"
+            try {
+              $enabled = $false
+              for ($i = 0; $i -lt 60 -and -not $proc.HasExited; $i++) {
+                if ((Test-Path $log) -and (Select-String -Path $log -SimpleMatch "Local sharing preview enabled" -Quiet)) {
+                  $enabled = $true
+                  break
+                }
+                Start-Sleep -Milliseconds 250
+              }
+              if (-not $enabled) { throw "Portable launch did not enable local sharing without command-line options" }
+            } finally {
+              if (-not $proc.HasExited) { Stop-Process -Id $proc.Id -Force }
+              if (-not $proc.WaitForExit(10000)) { throw "Portable application did not exit" }
+            }
+            Remove-Item (Join-Path $portable "data") -Recurse -Force
+          } else {
+            $proc = Start-Process -FilePath $exe -ArgumentList "--version" -PassThru
+            if (-not $proc.WaitForExit(30000)) {
+              Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+              throw "Portable application startup timed out"
+            }
+            if ($proc.ExitCode -ne 0) { throw "Portable application failed at startup" }
           }
-          if ($proc.ExitCode -ne 0) { throw "Portable application failed at startup" }
       - name: Upload portable package
         uses: actions/upload-artifact@v4
         with:
-          name: AreaGrab-portable
+          name: ${{ github.ref_name == 'feature/lan-screenshot-sharing' && 'AreaGrab-portable-pro-preview' || 'AreaGrab-portable' }}
           path: ${{ runner.temp }}/AreaGrab-portable/
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4

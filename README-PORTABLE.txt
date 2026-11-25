@@ -12,6 +12,6 @@ To uninstall: exit AreaGrab from the tray, then delete this folder.
 If you want the normal per-user installation with Start Menu shortcuts and
 uninstaller, use AreaGrab_Setup_1.1.0.exe instead.
 
-To test Pro local sharing, exit any running instance and launch
-AreaGrab.exe --preview-pro. Capture an image and choose Send to device
-in the notification or tray history. This test option does not activate a subscription.
+In the Portable Pro Preview, double-click AreaGrab.exe to test local sharing.
+Exit any running AreaGrab instance first. Capture an image and choose
+Send to device in the notification, main tray menu, or tray history.

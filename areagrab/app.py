@@ -18,7 +18,7 @@ from . import clipboard as clipboard_service
 from . import storage
 from .config import Settings
 from .share_source import ShareSource, file_identity
-from .constants import APP_NAME, LOG_DIR, SETTINGS_PATH, WEBSITE_URL
+from .constants import APP_NAME, LOG_DIR, SETTINGS_PATH, WEBSITE_URL, is_pro_preview_package
 from .history import History
 from .installer_shutdown import listen_for_installer_shutdown
 from .hotkeys import HotkeyError, HotkeyManager
@@ -113,6 +113,11 @@ class AreaGrabApp:
     def can_share(self) -> bool:
         return self.args.preview_pro and self.settings.lan_share.enabled
 
+    @property
+    def latest_share_source(self) -> ShareSource | None:
+        latest = self.history.get(0)
+        return latest.share_source if latest is not None else None
+
     def tr(self, text: str, **fields: object) -> str:
         return translate(text, self._language, **fields)
 
@@ -125,6 +130,8 @@ class AreaGrabApp:
 
     def start(self) -> None:
         log.info("Starting %s %s", APP_NAME, __version__)
+        if self.can_share:
+            log.info("Local sharing preview enabled")
         set_autostart(self.settings.advanced.autostart)
         self.overlay.set_dim(self.settings.capture.dim)
         self.tray.start()
@@ -176,6 +183,10 @@ class AreaGrabApp:
             self.open_pro()
         elif kind == "share":
             self.open_share(payload)
+        elif kind == "share_latest":
+            source = self.latest_share_source
+            if source is not None:
+                self.open_share(source)
         elif kind == "history_edit":
             try:
                 self.open_editor(payload.image())
@@ -794,7 +805,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--capture", action="store_true", help="take a screenshot immediately")
     parser.add_argument("--autostart", action="store_true", help="started by Windows")
     parser.add_argument("--reset", action="store_true", help="reset settings to defaults")
-    parser.add_argument("--preview-pro", action="store_true", help="enable Pro features in the test build")
+    parser.add_argument("--preview-pro", action="store_true", default=is_pro_preview_package(),
+                        help="enable Pro features in the test build")
     parser.add_argument("--version", action="store_true", help="print version")
     return parser
 

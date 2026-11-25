@@ -13,6 +13,7 @@ import time
 import unittest
 from pathlib import Path
 from urllib.parse import urlsplit
+from unittest.mock import patch
 
 import zxingcpp
 from PIL import Image
@@ -51,6 +52,21 @@ class LanShareTests(unittest.TestCase):
             return response.status, dict(response.getheaders()), response.read()
         finally:
             connection.close()
+
+    def test_only_marked_portable_executables_default_to_pro_preview(self):
+        from areagrab.constants import is_pro_preview_package
+
+        with tempfile.TemporaryDirectory() as folder:
+            portable = Path(folder)
+            with patch("areagrab.constants.PORTABLE_DIR", portable), \
+                    patch("areagrab.constants.IS_PORTABLE", True):
+                with patch.object(sys, "frozen", True, create=True):
+                    self.assertFalse(is_pro_preview_package())
+                    (portable / "pro-preview.flag").touch()
+                    self.assertTrue(is_pro_preview_package())
+                    with patch("areagrab.constants.IS_PORTABLE", False):
+                        self.assertFalse(is_pro_preview_package())
+                self.assertFalse(is_pro_preview_package())
 
     def test_qr_decodes_to_exact_url_and_sessions_have_unique_tokens(self):
         data = encoded(Image.new("RGB", (2, 2)), "PNG")
@@ -226,6 +242,48 @@ class WindowsShareTests(unittest.TestCase):
             active = second.session
             app.quit()
             self.assertTrue(active.wait_closed(5))
+
+    def test_portable_preview_capture_exposes_sharing_in_tray_and_toast(self):
+        import tkinter as tk
+
+        from areagrab.app import AreaGrabApp, DeliveryResult, build_parser
+        from areagrab.config import Settings
+
+        root = tk.Tk()
+        root.withdraw()
+        self.addCleanup(root.destroy)
+        with tempfile.TemporaryDirectory() as folder:
+            portable = Path(folder)
+            (portable / "pro-preview.flag").touch()
+            with patch("areagrab.constants.PORTABLE_DIR", portable), \
+                    patch("areagrab.constants.IS_PORTABLE", True), \
+                    patch.object(sys, "frozen", True, create=True):
+                args = build_parser().parse_args([])
+        self.assertTrue(args.preview_pro)
+        settings = Settings.from_dict({"advanced": {"language": "en"}})
+        with patch("areagrab.app.Settings.load", return_value=settings):
+            app = AreaGrabApp(root, args)
+        self.assertFalse(next(item.enabled for item in app.tray._build_menu()
+                              if item.text == "Send to device"))
+
+        image = Image.new("RGB", (8, 8), "white")
+        png = encoded(image, "PNG")
+        source = ShareSource(png, None)
+        result = DeliveryResult(image, png, None, True, True, None, None, (0, 0), source)
+        with patch("areagrab.app.is_fullscreen_foreground", return_value=False), \
+                patch.object(app.toasts, "show") as toast:
+            app._on_delivered(result)
+        actions = dict(toast.call_args.kwargs["actions"])
+        self.assertIn("Send to device", actions)
+        self.assertTrue(any(item.text.startswith("Send to device") for item in app.tray._history_page(0)))
+        tray_action = next(item for item in app.tray._build_menu() if item.text == "Send to device")
+        self.assertTrue(tray_action.enabled)
+        with patch.object(app, "open_share") as open_share:
+            actions["Send to device"]()
+            tray_action(None)
+            app._dispatch(*app._events.get_nowait())
+        self.assertEqual([call.args for call in open_share.call_args_list], [(source,), (source,)])
+        root.after_cancel(app._capture_stats_after)
 
     def test_settings_defaults_and_duration_validation(self):
         from areagrab.config import Settings

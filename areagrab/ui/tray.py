@@ -101,6 +101,12 @@ class TrayIcon:
             pystray.Menu(lambda: self._history_page(0)),
             enabled=lambda _item: bool(self.app.history.items()),
         ))
+        if self.app.can_share:
+            items.append(pystray.MenuItem(
+                self.app.tr("Отправить на устройство"),
+                lambda _icon, _item: self.app.post("share_latest"),
+                enabled=lambda _item: self.app.latest_share_source is not None,
+            ))
         items.extend(
             [
                 pystray.MenuItem(
